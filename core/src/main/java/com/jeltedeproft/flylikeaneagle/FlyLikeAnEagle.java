@@ -17,10 +17,12 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private static final float STEP = 1f / 60f;
     private static final float GROUND_PITCH_TORQUE = 22f;
     private static final float BASE_AIR_PITCH_TORQUE = 48f;
-    private static final float FINISH_SPEED = 0.7f;
-    private static final float FINISH_DELAY = 1.25f;
+    private static final float SETTLE_SPEED = 0.9f;
+    private static final float SETTLE_SPIN = 0.8f;
+    private static final float SETTLE_DELAY = 1.1f;
     private static final float LANDING_SLOPE_DEGREES = -17f;
     private static final int MAX_UPGRADE_LEVEL = 5;
+    private static final int TRAIL_POINTS = 18;
 
     private static final Vector2[] RUN_UP_AND_RAMP = {
         new Vector2(-20f, 15f), new Vector2(-10f, 14f), new Vector2(0f, 11f),
@@ -30,8 +32,8 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     };
 
     private static final Vector2[] LANDING = {
-        new Vector2(68f, 5.7f), new Vector2(80f, 3.2f), new Vector2(94f, 1.2f),
-        new Vector2(110f, 0f), new Vector2(220f, 0f)
+        new Vector2(62f, 6.8f), new Vector2(70f, 5.2f), new Vector2(82f, 3.0f),
+        new Vector2(96f, 1.1f), new Vector2(112f, 0f), new Vector2(260f, 0f)
     };
 
     private enum RunState { RUNNING, FINISHED }
@@ -44,12 +46,17 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private ShapeRenderer shapes;
     private Preferences progress;
 
-    private float accumulator, startX, stationaryTime, runTime, bestDistance, finalDistance, landingTimer;
+    private float accumulator, startX, stationaryTime, runTime, bestDistance, finalDistance;
     private boolean launched, touchedLanding, touchLeft, touchRight;
     private RunState state;
     private Outcome outcome;
 
     private int coins, speedLevel, glideLevel, controlLevel, lastReward;
+
+    private final float[] trailX = new float[TRAIL_POINTS];
+    private final float[] trailY = new float[TRAIL_POINTS];
+    private int trailCount;
+    private float trailTimer;
 
     @Override public void create() {
         world = new World(new Vector2(0f, -7.4f), true);
@@ -98,7 +105,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
                 Fixture a = contact.getFixtureA(), b = contact.getFixtureB();
                 if (isPair(a, b, "sled", "landing") && launched && !touchedLanding) {
                     touchedLanding = true;
-                    landingTimer = 0f;
+                    stationaryTime = 0f;
                     outcome = evaluateLanding();
                 }
             }
@@ -148,7 +155,9 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         sled.setLinearVelocity(9f + speedLevel * 1.2f, 0f);
         startX = sled.getPosition().x;
-        stationaryTime = runTime = accumulator = finalDistance = landingTimer = 0f;
+        stationaryTime = runTime = accumulator = finalDistance = 0f;
+        trailTimer = 0f;
+        trailCount = 0;
         lastReward = 0;
         launched = touchedLanding = touchLeft = touchRight = false;
         outcome = Outcome.NONE;
@@ -167,6 +176,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
             guaranteeRampSpeed();
             applyGlideAssist();
             stepPhysics(delta);
+            updateTrail(delta);
             updateRunState(delta);
         }
         updateCamera();
@@ -218,7 +228,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         if (x > 30f && x < 52.4f) {
             Vector2 v = sled.getLinearVelocity();
             float target = 16f + speedLevel * 1.4f;
-            // Explicitly clamp forward velocity on the climb: the base sled must always reach the lip.
             if (v.x < target) sled.setLinearVelocity(target, v.y);
         }
     }
@@ -237,19 +246,33 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         }
     }
 
+    private void updateTrail(float delta) {
+        if (!launched || touchedLanding) return;
+        trailTimer += delta;
+        if (trailTimer < 0.08f) return;
+        trailTimer = 0f;
+        for (int i = Math.min(trailCount, TRAIL_POINTS - 1); i > 0; i--) {
+            trailX[i] = trailX[i - 1];
+            trailY[i] = trailY[i - 1];
+        }
+        trailX[0] = sled.getPosition().x;
+        trailY[0] = sled.getPosition().y;
+        if (trailCount < TRAIL_POINTS) trailCount++;
+    }
+
     private void updateRunState(float delta) {
         runTime += delta;
-        if (touchedLanding) {
-            landingTimer += delta;
-            if (landingTimer >= 1.35f) finishRun();
-            return;
-        }
+
+        // A run never ends in the air. It can only finish after the sled has
+        // contacted the landing terrain and then actually settled on the ground.
+        if (!touchedLanding) return;
+
         float speed = sled.getLinearVelocity().len();
-        if (runTime > 2f && speed < FINISH_SPEED) stationaryTime += delta; else stationaryTime = 0f;
-        if (stationaryTime >= FINISH_DELAY || sled.getPosition().y < -12f) {
-            if (outcome == Outcome.NONE) outcome = Outcome.CRASH;
-            finishRun();
-        }
+        float spin = Math.abs(sled.getAngularVelocity());
+        if (speed < SETTLE_SPEED && spin < SETTLE_SPIN) stationaryTime += delta;
+        else stationaryTime = 0f;
+
+        if (stationaryTime >= SETTLE_DELAY) finishRun();
     }
 
     private void finishRun() {
@@ -274,43 +297,98 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         shapes.setProjectionMatrix(camera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Simple scenery so the world has depth and motion even without art assets.
+        shapes.setColor(1f, .9f, .35f, 1f);
+        shapes.circle(22f, 22f, 2.2f, 28);
+        drawCloud(-2f, 18f, 1.2f);
+        drawCloud(36f, 20f, .9f);
+        drawCloud(88f, 17f, 1.1f);
+        drawCloud(140f, 19f, 1f);
+
         shapes.setColor(.23f, .55f, .25f, 1f);
-        drawTerrainFill(RUN_UP_AND_RAMP); drawTerrainFill(LANDING);
+        drawTerrainFill(RUN_UP_AND_RAMP);
+        drawTerrainFill(LANDING);
 
         Vector2 lip = RUN_UP_AND_RAMP[RUN_UP_AND_RAMP.length - 1];
         shapes.setColor(.95f, .78f, .18f, 1f);
         shapes.rect(lip.x - .35f, lip.y - .2f, .7f, .4f);
+
+        // Distance posts make long flights easier to read at a glance.
+        drawDistancePost(80f, 3.5f);
+        drawDistancePost(100f, 1.5f);
+        drawDistancePost(120f, .3f);
+        drawDistancePost(140f, .3f);
+        drawDistancePost(160f, .3f);
+        drawDistancePost(180f, .3f);
+        drawDistancePost(200f, .3f);
+
+        if (launched) {
+            for (int i = trailCount - 1; i >= 0; i--) {
+                float size = .08f + (trailCount - i) * .012f;
+                shapes.setColor(1f, 1f, 1f, .18f + (trailCount - i) * .018f);
+                shapes.circle(trailX[i], trailY[i], size, 10);
+            }
+        }
 
         Vector2 p = sled.getPosition();
         float angle = sled.getAngle() * MathUtils.radiansToDegrees;
         shapes.setColor(.9f, .22f, .12f, 1f);
         shapes.rect(p.x - 1.4f, p.y - .28f, 1.4f, .28f, 2.8f, .56f, 1f, 1f, angle);
         shapes.setColor(Color.DARK_GRAY);
-        shapes.circle(p.x - .8f, p.y - .42f, .22f, 12); shapes.circle(p.x + .8f, p.y - .42f, .22f, 12);
+        shapes.circle(p.x - .8f, p.y - .42f, .22f, 12);
+        shapes.circle(p.x + .8f, p.y - .42f, .22f, 12);
 
-        // Strong visual feedback while a phone side is held.
         if (state == RunState.RUNNING && (touchLeft || touchRight)) {
-            shapes.setColor(1f, 1f, 1f, .55f);
+            shapes.setColor(1f, 1f, 1f, .6f);
             float markerX = p.x + (touchLeft ? -2.4f : 2.4f);
             shapes.circle(markerX, p.y + 1.8f, .55f, 18);
+            shapes.triangle(markerX + (touchLeft ? .18f : -.18f), p.y + 2.2f,
+                markerX + (touchLeft ? -.55f : .55f), p.y + 1.8f,
+                markerX + (touchLeft ? .18f : -.18f), p.y + 1.4f);
+        }
+
+        if (touchedLanding && state == RunState.RUNNING) {
+            shapes.setColor(outcome == Outcome.CLEAN
+                ? new Color(.35f,.95f,.45f,.55f)
+                : new Color(.95f,.25f,.2f,.55f));
+            shapes.circle(p.x, p.y + 2.6f, .75f, 20);
         }
 
         if (state == RunState.FINISHED) {
-            shapes.setColor(outcome == Outcome.CLEAN ? new Color(.35f,.95f,.45f,.9f) : new Color(.95f,.25f,.2f,.9f));
+            shapes.setColor(outcome == Outcome.CLEAN
+                ? new Color(.35f,.95f,.45f,.9f)
+                : new Color(.95f,.25f,.2f,.9f));
             shapes.circle(p.x, p.y + 3f, 1.25f, 24);
         }
         shapes.end();
 
         shapes.begin(ShapeRenderer.ShapeType.Line);
         shapes.setColor(Color.WHITE);
-        drawTerrainLine(RUN_UP_AND_RAMP); drawTerrainLine(LANDING);
+        drawTerrainLine(RUN_UP_AND_RAMP);
+        drawTerrainLine(LANDING);
         shapes.end();
+    }
+
+    private void drawCloud(float x, float y, float scale) {
+        shapes.setColor(1f, 1f, 1f, .72f);
+        shapes.circle(x, y, 1.15f * scale, 18);
+        shapes.circle(x + 1.1f * scale, y + .18f * scale, .9f * scale, 18);
+        shapes.circle(x - 1f * scale, y + .12f * scale, .78f * scale, 18);
+    }
+
+    private void drawDistancePost(float x, float groundY) {
+        shapes.setColor(1f, 1f, 1f, .75f);
+        shapes.rect(x - .08f, groundY, .16f, 1.8f);
+        shapes.setColor(.95f, .45f, .15f, .9f);
+        shapes.triangle(x, groundY + 1.8f, x, groundY + 2.6f, x + .75f, groundY + 2.2f);
     }
 
     private void drawTerrainFill(Vector2[] points) {
         for (int i = 0; i < points.length - 1; i++) {
             Vector2 a = points[i], b = points[i + 1];
-            shapes.triangle(a.x,a.y,b.x,b.y,a.x,-20f); shapes.triangle(b.x,b.y,b.x,-20f,a.x,-20f);
+            shapes.triangle(a.x,a.y,b.x,b.y,a.x,-20f);
+            shapes.triangle(b.x,b.y,b.x,-20f,a.x,-20f);
         }
     }
 
@@ -320,9 +398,14 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private void updateTitle() {
         float distance = state == RunState.FINISHED ? finalDistance : Math.max(0f, sled.getPosition().x - startX);
-        String status = state == RunState.FINISHED
-            ? " | +" + lastReward + " coins | Coins " + coins + " | S" + speedLevel + " G" + glideLevel + " C" + controlLevel
-            : (launched ? " | AIRBORNE - HOLD LEFT/RIGHT TO ROTATE" : " | BUILDING SPEED");
+        String status;
+        if (state == RunState.FINISHED) {
+            status = " | +" + lastReward + " coins | Coins " + coins + " | S" + speedLevel + " G" + glideLevel + " C" + controlLevel;
+        } else if (touchedLanding) {
+            status = outcome == Outcome.CLEAN ? " | CLEAN LANDING - SETTLING" : " | CRASH - SETTLING";
+        } else {
+            status = launched ? " | AIRBORNE - HOLD LEFT/RIGHT TO ROTATE" : " | BUILDING SPEED";
+        }
         Gdx.graphics.setTitle("Fly Like an Eagle | " + Math.round(distance) + " m | Best " + Math.round(bestDistance) + " m" + status);
     }
 
