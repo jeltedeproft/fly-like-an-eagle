@@ -82,7 +82,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         boolean pitchLeft = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
         boolean pitchRight = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
 
-        // On touch screens, hold the left or right half of the screen to pitch.
         if (Gdx.input.isTouched()) {
             if (Gdx.input.getX() < Gdx.graphics.getWidth() / 2) pitchLeft = true;
             else pitchRight = true;
@@ -110,8 +109,10 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.end();
         debugRenderer.render(world, camera.combined);
 
-        Gdx.graphics.setTitle(String.format("Fly Like an Eagle | %.0f m | %.1f m/s",
-            Math.max(0f, position.x - startX), sled.getLinearVelocity().len()));
+        int distance = Math.round(Math.max(0f, position.x - startX));
+        int speedTenths = Math.round(sled.getLinearVelocity().len() * 10f);
+        Gdx.graphics.setTitle("Fly Like an Eagle | " + distance + " m | " +
+            (speedTenths / 10) + "." + (speedTenths % 10) + " m/s");
     }
 
     @Override
