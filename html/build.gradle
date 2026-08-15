@@ -1,0 +1,30 @@
+apply plugin: 'war'
+apply plugin: 'java'
+
+sourceCompatibility = 11
+
+dependencies {
+    implementation project(':core')
+    implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion:sources"
+    implementation "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"
+    implementation "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"
+    implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources"
+    implementation project(path: ':core', configuration: 'archives')
+}
+
+configurations { compiler }
+
+dependencies {
+    compiler 'org.gwtproject:gwt-dev:2.11.0'
+    compiler 'org.gwtproject:gwt-user:2.11.0'
+}
+
+tasks.register('dist', JavaExec) {
+    dependsOn classes
+    mainClass = 'com.google.gwt.dev.Compiler'
+    classpath = configurations.compiler + sourceSets.main.runtimeClasspath
+    args '-war', layout.buildDirectory.dir('dist').get().asFile.absolutePath,
+         '-style', 'OBF', '-optimize', '9',
+         'com.jeltedeproft.flylikeaneagle.GdxDefinition'
+}
