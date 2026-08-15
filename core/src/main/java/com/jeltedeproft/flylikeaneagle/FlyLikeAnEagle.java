@@ -6,8 +6,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -39,8 +37,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private OrthographicCamera camera;
     private ExtendViewport viewport;
     private ShapeRenderer shapes;
-    private SpriteBatch batch;
-    private BitmapFont font;
 
     private float accumulator;
     private float startX;
@@ -56,9 +52,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(32f, 18f, camera);
         shapes = new ShapeRenderer();
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.getData().setScale(1.35f);
         createTerrain();
         startRun();
     }
@@ -120,7 +113,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         updateCamera();
         drawWorld();
-        drawHud();
+        updateTitle();
     }
 
     private void updateControls() {
@@ -170,9 +163,9 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         shapes.setProjectionMatrix(camera.combined);
-
         shapes.begin(ShapeRenderer.ShapeType.Filled);
-        shapes.setColor(new Color(0.23f, 0.55f, 0.25f, 1f));
+
+        shapes.setColor(0.23f, 0.55f, 0.25f, 1f);
         for (int i = 0; i < TERRAIN.length - 1; i++) {
             Vector2 a = TERRAIN[i];
             Vector2 b = TERRAIN[i + 1];
@@ -182,14 +175,23 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         Vector2 p = sled.getPosition();
         float angle = sled.getAngle() * MathUtils.radiansToDegrees;
-        shapes.setColor(new Color(0.9f, 0.22f, 0.12f, 1f));
+        shapes.setColor(0.9f, 0.22f, 0.12f, 1f);
         shapes.rect(p.x - 1.4f, p.y - 0.28f, 1.4f, 0.28f,
             2.8f, 0.56f, 1f, 1f, angle);
 
         shapes.setColor(Color.DARK_GRAY);
-        float wheelY = p.y - 0.42f;
-        shapes.circle(p.x - 0.8f, wheelY, 0.22f, 12);
-        shapes.circle(p.x + 0.8f, wheelY, 0.22f, 12);
+        shapes.circle(p.x - 0.8f, p.y - 0.42f, 0.22f, 12);
+        shapes.circle(p.x + 0.8f, p.y - 0.42f, 0.22f, 12);
+
+        if (state == RunState.FINISHED) {
+            // Large visible end-of-run marker. Tap anywhere to restart.
+            shapes.setColor(1f, 1f, 1f, 0.8f);
+            shapes.circle(p.x, p.y + 3f, 1.2f, 24);
+            shapes.setColor(0.18f, 0.35f, 0.7f, 1f);
+            shapes.triangle(p.x - 0.35f, p.y + 2.35f,
+                p.x - 0.35f, p.y + 3.65f,
+                p.x + 0.55f, p.y + 3f);
+        }
         shapes.end();
 
         shapes.begin(ShapeRenderer.ShapeType.Line);
@@ -200,33 +202,15 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.end();
     }
 
-    private void drawHud() {
-        int width = Gdx.graphics.getWidth();
-        int height = Gdx.graphics.getHeight();
-        batch.getProjectionMatrix().setToOrtho2D(0f, 0f, width, height);
-        batch.begin();
-
-        font.setColor(Color.WHITE);
+    private void updateTitle() {
         float distance = state == RunState.FINISHED
             ? finalDistance
             : Math.max(0f, sled.getPosition().x - startX);
         int speedTenths = Math.round(sled.getLinearVelocity().len() * 10f);
-
-        font.draw(batch, "Distance: " + Math.round(distance) + " m", 18f, height - 20f);
-        font.draw(batch, "Speed: " + (speedTenths / 10) + "." + (speedTenths % 10) + " m/s", 18f, height - 50f);
-
-        if (state == RunState.RUNNING) {
-            font.draw(batch, "Hold LEFT / RIGHT side to tilt", 18f, 42f);
-        } else {
-            font.getData().setScale(1.8f);
-            font.draw(batch, "RUN COMPLETE", width * 0.5f - 105f, height * 0.62f);
-            font.getData().setScale(1.35f);
-            font.draw(batch, "Distance: " + Math.round(finalDistance) + " m", width * 0.5f - 80f, height * 0.53f);
-            font.draw(batch, "Best: " + Math.round(bestDistance) + " m", width * 0.5f - 65f, height * 0.47f);
-            font.draw(batch, "Tap anywhere to try again", width * 0.5f - 125f, height * 0.36f);
-        }
-
-        batch.end();
+        String status = state == RunState.FINISHED ? " | TAP TO RETRY" : "";
+        Gdx.graphics.setTitle("Fly Like an Eagle | " + Math.round(distance) + " m | "
+            + (speedTenths / 10) + "." + (speedTenths % 10) + " m/s | Best "
+            + Math.round(bestDistance) + " m" + status);
     }
 
     @Override
@@ -236,8 +220,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     @Override
     public void dispose() {
-        font.dispose();
-        batch.dispose();
         shapes.dispose();
         world.dispose();
     }
