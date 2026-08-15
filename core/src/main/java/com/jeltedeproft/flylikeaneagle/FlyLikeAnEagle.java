@@ -36,28 +36,18 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         viewport = new ExtendViewport(32f, 18f, camera);
         debugRenderer = new Box2DDebugRenderer();
         shapes = new ShapeRenderer();
-
         createTerrain();
         createSled();
     }
 
     private void createTerrain() {
-        BodyDef bodyDef = new BodyDef();
-        Body terrain = world.createBody(bodyDef);
-
+        Body terrain = world.createBody(new BodyDef());
         ChainShape shape = new ChainShape();
         Vector2[] points = {
-            new Vector2(-20f, 14f),
-            new Vector2(-10f, 13f),
-            new Vector2(0f, 10f),
-            new Vector2(12f, 5f),
-            new Vector2(22f, 2f),
-            new Vector2(29f, 2f),
-            new Vector2(34f, 4f),
-            new Vector2(38f, 7f),
-            new Vector2(42f, 7f),
-            new Vector2(60f, 0f),
-            new Vector2(200f, 0f)
+            new Vector2(-20f, 14f), new Vector2(-10f, 13f), new Vector2(0f, 10f),
+            new Vector2(12f, 5f), new Vector2(22f, 2f), new Vector2(29f, 2f),
+            new Vector2(34f, 4f), new Vector2(38f, 7f), new Vector2(42f, 7f),
+            new Vector2(60f, 0f), new Vector2(200f, 0f)
         };
         shape.createChain(points);
         terrain.createFixture(shape, 0f).setFriction(0.08f);
@@ -66,7 +56,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private void createSled() {
         if (sled != null) world.destroyBody(sled);
-
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(-14f, 15.2f);
@@ -75,7 +64,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(1.4f, 0.28f);
-
         FixtureDef fixture = new FixtureDef();
         fixture.shape = shape;
         fixture.density = 1.2f;
@@ -83,7 +71,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         fixture.restitution = 0.05f;
         sled.createFixture(fixture);
         shape.dispose();
-
         sled.setLinearVelocity(4f, 0f);
         startX = sled.getPosition().x;
     }
@@ -92,12 +79,17 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     public void render() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) createSled();
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A)) {
-            sled.applyTorque(PITCH_TORQUE, true);
+        boolean pitchLeft = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
+        boolean pitchRight = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
+
+        // On touch screens, hold the left or right half of the screen to pitch.
+        if (Gdx.input.isTouched()) {
+            if (Gdx.input.getX() < Gdx.graphics.getWidth() / 2) pitchLeft = true;
+            else pitchRight = true;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D)) {
-            sled.applyTorque(-PITCH_TORQUE, true);
-        }
+
+        if (pitchLeft) sled.applyTorque(PITCH_TORQUE, true);
+        if (pitchRight) sled.applyTorque(-PITCH_TORQUE, true);
 
         accumulator += Math.min(Gdx.graphics.getDeltaTime(), 0.25f);
         while (accumulator >= STEP) {
@@ -112,16 +104,13 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         Gdx.gl.glClearColor(0.08f, 0.11f, 0.16f, 1f);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         shapes.setProjectionMatrix(camera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Line);
         shapes.line(startX, 0.5f, position.x, 0.5f);
         shapes.end();
-
         debugRenderer.render(world, camera.combined);
 
-        Gdx.graphics.setTitle(String.format(
-            "Fly Like an Eagle | %.0f m | %.1f m/s | R reset | A/D pitch",
+        Gdx.graphics.setTitle(String.format("Fly Like an Eagle | %.0f m | %.1f m/s",
             Math.max(0f, position.x - startX), sled.getLinearVelocity().len()));
     }
 
