@@ -58,13 +58,34 @@ tasks.register('dist', JavaExec) {
             }
         }
 
-        // LibGDX's GWT preloader requires every assets.txt line to have six fields.
-        // Keep one tiny text asset in the manifest so the preload phase is valid.
-        def marker = new File(deployedAssets, 'README.txt')
-        if (!marker.exists()) {
-            marker.text = 'Fly Like an Eagle web assets.\n'
+        // BitmapFont() uses LibGDX's bundled Arial bitmap font. Desktop can read it
+        // from the classpath directly, but GWT needs those files in the preload set.
+        def gdxJar = configurations.runtimeClasspath.files.find {
+            it.name == "gdx-${gdxVersion}.jar"
         }
+        if (gdxJar == null) {
+            throw new GradleException("Could not locate gdx-${gdxVersion}.jar for web font assets")
+        }
+
+        copy {
+            from zipTree(gdxJar)
+            include 'com/badlogic/gdx/utils/arial-15.fnt'
+            include 'com/badlogic/gdx/utils/arial-15.png'
+            into deployedAssets
+        }
+
+        def marker = new File(deployedAssets, 'README.txt')
+        if (!marker.exists()) marker.text = 'Fly Like an Eagle web assets.\n'
+
+        def fontFnt = new File(deployedAssets, 'com/badlogic/gdx/utils/arial-15.fnt')
+        def fontPng = new File(deployedAssets, 'com/badlogic/gdx/utils/arial-15.png')
+        if (!fontFnt.exists() || !fontPng.exists()) {
+            throw new GradleException('LibGDX default bitmap font files were not packaged')
+        }
+
         new File(deployedAssets, 'assets.txt').text =
-            "t:README.txt:README.txt:${marker.length()}:text/plain:1\n"
+            "t:README.txt:README.txt:${marker.length()}:text/plain:1\n" +
+            "t:com/badlogic/gdx/utils/arial-15.fnt:com/badlogic/gdx/utils/arial-15.fnt:${fontFnt.length()}:text/plain:1\n" +
+            "i:com/badlogic/gdx/utils/arial-15.png:com/badlogic/gdx/utils/arial-15.png:${fontPng.length()}:image/png:1\n"
     }
 }
