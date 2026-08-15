@@ -23,11 +23,29 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private static final float FINISH_SPEED = 0.7f;
     private static final float FINISH_DELAY = 1.5f;
 
-    private static final Vector2[] TERRAIN = {
-        new Vector2(-20f, 14f), new Vector2(-10f, 13f), new Vector2(0f, 10f),
-        new Vector2(12f, 5f), new Vector2(22f, 2f), new Vector2(29f, 2f),
-        new Vector2(34f, 4f), new Vector2(38f, 7f), new Vector2(42f, 7f),
-        new Vector2(60f, 0f), new Vector2(200f, 0f)
+    // One clear run-up into one oversized launch ramp. The landing is a separate
+    // body so there is a real air gap after the lip instead of a downhill surface.
+    private static final Vector2[] RUN_UP_AND_RAMP = {
+        new Vector2(-20f, 14f),
+        new Vector2(-10f, 13f),
+        new Vector2(0f, 10f),
+        new Vector2(12f, 5f),
+        new Vector2(22f, 1.8f),
+        new Vector2(28f, 1.2f),
+        new Vector2(32f, 1.6f),
+        new Vector2(36f, 2.8f),
+        new Vector2(40f, 5.0f),
+        new Vector2(43.5f, 8.2f),
+        new Vector2(46.5f, 11.8f),
+        new Vector2(49f, 14.2f)
+    };
+
+    private static final Vector2[] LANDING = {
+        new Vector2(64f, 8.5f),
+        new Vector2(72f, 5.2f),
+        new Vector2(84f, 2.3f),
+        new Vector2(100f, 0f),
+        new Vector2(220f, 0f)
     };
 
     private enum RunState { RUNNING, FINISHED }
@@ -57,9 +75,14 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void createTerrain() {
+        createTerrainChain(RUN_UP_AND_RAMP);
+        createTerrainChain(LANDING);
+    }
+
+    private void createTerrainChain(Vector2[] points) {
         Body terrain = world.createBody(new BodyDef());
         ChainShape shape = new ChainShape();
-        shape.createChain(TERRAIN);
+        shape.createChain(points);
         terrain.createFixture(shape, 0f).setFriction(0.08f);
         shape.dispose();
     }
@@ -83,7 +106,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         sled.createFixture(fixture);
         shape.dispose();
 
-        sled.setLinearVelocity(4f, 0f);
+        sled.setLinearVelocity(5f, 0f);
         startX = sled.getPosition().x;
         stationaryTime = 0f;
         runTime = 0f;
@@ -144,7 +167,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         if (runTime > 2f && speed < FINISH_SPEED) stationaryTime += delta;
         else stationaryTime = 0f;
 
-        if (stationaryTime >= FINISH_DELAY || sled.getPosition().y < -10f) {
+        if (stationaryTime >= FINISH_DELAY || sled.getPosition().y < -12f) {
             finalDistance = Math.max(0f, sled.getPosition().x - startX);
             bestDistance = Math.max(bestDistance, finalDistance);
             state = RunState.FINISHED;
@@ -154,7 +177,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private void updateCamera() {
         Vector2 position = sled.getPosition();
         camera.position.x += (position.x + 5f - camera.position.x) * 0.08f;
-        camera.position.y += (Math.max(7f, position.y) - camera.position.y) * 0.06f;
+        camera.position.y += (Math.max(8f, position.y + 1f) - camera.position.y) * 0.06f;
         camera.update();
     }
 
@@ -166,12 +189,13 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
         shapes.setColor(0.23f, 0.55f, 0.25f, 1f);
-        for (int i = 0; i < TERRAIN.length - 1; i++) {
-            Vector2 a = TERRAIN[i];
-            Vector2 b = TERRAIN[i + 1];
-            shapes.triangle(a.x, a.y, b.x, b.y, a.x, -20f);
-            shapes.triangle(b.x, b.y, b.x, -20f, a.x, -20f);
-        }
+        drawTerrainFill(RUN_UP_AND_RAMP);
+        drawTerrainFill(LANDING);
+
+        // A bright lip makes the single big jump immediately readable on a phone.
+        Vector2 lip = RUN_UP_AND_RAMP[RUN_UP_AND_RAMP.length - 1];
+        shapes.setColor(0.95f, 0.78f, 0.18f, 1f);
+        shapes.rect(lip.x - 0.35f, lip.y - 0.2f, 0.7f, 0.4f);
 
         Vector2 p = sled.getPosition();
         float angle = sled.getAngle() * MathUtils.radiansToDegrees;
@@ -184,7 +208,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.circle(p.x + 0.8f, p.y - 0.42f, 0.22f, 12);
 
         if (state == RunState.FINISHED) {
-            // Large visible end-of-run marker. Tap anywhere to restart.
             shapes.setColor(1f, 1f, 1f, 0.8f);
             shapes.circle(p.x, p.y + 3f, 1.2f, 24);
             shapes.setColor(0.18f, 0.35f, 0.7f, 1f);
@@ -196,10 +219,24 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         shapes.begin(ShapeRenderer.ShapeType.Line);
         shapes.setColor(Color.WHITE);
-        for (int i = 0; i < TERRAIN.length - 1; i++) {
-            shapes.line(TERRAIN[i], TERRAIN[i + 1]);
-        }
+        drawTerrainLine(RUN_UP_AND_RAMP);
+        drawTerrainLine(LANDING);
         shapes.end();
+    }
+
+    private void drawTerrainFill(Vector2[] points) {
+        for (int i = 0; i < points.length - 1; i++) {
+            Vector2 a = points[i];
+            Vector2 b = points[i + 1];
+            shapes.triangle(a.x, a.y, b.x, b.y, a.x, -20f);
+            shapes.triangle(b.x, b.y, b.x, -20f, a.x, -20f);
+        }
+    }
+
+    private void drawTerrainLine(Vector2[] points) {
+        for (int i = 0; i < points.length - 1; i++) {
+            shapes.line(points[i], points[i + 1]);
+        }
     }
 
     private void updateTitle() {
