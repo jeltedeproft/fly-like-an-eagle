@@ -34,7 +34,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private static final Vector2[] LANDING = {
         new Vector2(62f,6.8f), new Vector2(70f,5.2f), new Vector2(82f,3f),
-        new Vector2(96f,1.1f), new Vector2(112f,0f), new Vector2(360f,0f)
+        new Vector2(96f,1.1f), new Vector2(112f,0f), new Vector2(1200f,0f)
     };
 
     private static final float[] PICKUP_X = {72f,88f,108f,132f,160f};
@@ -54,6 +54,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private float stationaryTime;
     private float bestDistance;
     private float touchdownDistance;
+    private float finalDistance;
     private boolean launched;
     private boolean touchedLanding;
     private boolean touchLeft;
@@ -88,7 +89,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void loadProgress() {
-        // Migrate the old coin value into points automatically.
         points = progress.getInteger("points", progress.getInteger("coins", 0));
         speedLevel = progress.getInteger("speed",0);
         glideLevel = progress.getInteger("glide",0);
@@ -130,7 +130,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
                     if (!touchedLanding) {
                         touchedLanding = true;
                         touchdownDistance = Math.max(0f, sled.getPosition().x - LAUNCH_X);
-                        bestDistance = Math.max(bestDistance, touchdownDistance);
                         outcome = evaluateLanding();
                     }
                 }
@@ -186,7 +185,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shape.dispose();
 
         sled.setLinearVelocity(9f + speedLevel * 1.2f,0f);
-        accumulator = stationaryTime = touchdownDistance = trailTimer = 0f;
+        accumulator = stationaryTime = touchdownDistance = finalDistance = trailTimer = 0f;
         trailCount = groundContacts = lastReward = pickupPoints = 0;
         launched = touchedLanding = touchLeft = touchRight = false;
         outcome = Outcome.NONE;
@@ -321,7 +320,9 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void finishRun() {
-        int distancePoints = Math.round(touchdownDistance);
+        finalDistance = Math.max(0f, sled.getPosition().x - LAUNCH_X);
+        bestDistance = Math.max(bestDistance, finalDistance);
+        int distancePoints = Math.round(finalDistance);
         lastReward = distancePoints + pickupPoints + (outcome == Outcome.CLEAN ? 20 : 0);
         points += lastReward;
         saveProgress();
@@ -330,7 +331,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private float liveDistance() {
         if (!launched) return 0f;
-        if (touchedLanding) return touchdownDistance;
         return Math.max(0f,sled.getPosition().x - LAUNCH_X);
     }
 
@@ -358,7 +358,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.setColor(.95f,.78f,.18f,1f);
         shapes.rect(LAUNCH_X-.35f,6.6f,.7f,.4f);
 
-        for (float x=72f;x<=320f;x+=20f) drawDistancePost(x, x < 112f ? 1f : .3f);
+        for (float x=72f;x<=1120f;x+=40f) drawDistancePost(x, x < 112f ? 1f : .3f);
 
         for (int i=0;i<PICKUP_X.length;i++) {
             if (pickupCollected[i]) continue;
@@ -426,7 +426,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private void updateTitle() {
         String stateToken = state==RunState.FINISHED ? "RESULT" : launched ? (groundContacts>0 ? "GROUND" : "AIR") : "RAMP";
-        int land = touchedLanding ? Math.round(touchdownDistance) : -1;
+        int land = state==RunState.FINISHED ? Math.round(finalDistance) : (touchedLanding ? Math.round(touchdownDistance) : -1);
         Gdx.graphics.setTitle("FLYEAGLE"
             + "|DIST=" + Math.round(liveDistance())
             + "|LAND=" + land
