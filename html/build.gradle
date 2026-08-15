@@ -58,9 +58,13 @@ tasks.register('dist', JavaExec) {
             }
         }
 
-        // LibGDX's GWT preloader always requests assets.txt before starting the app.
-        // The prototype currently has no runtime assets, so an empty manifest is valid
-        // and allows the preloader to complete instead of remaining on the GDX logo.
-        new File(deployedAssets, 'assets.txt').text = ''
+        // LibGDX's GWT preloader requires every assets.txt line to have six fields.
+        // Keep one tiny text asset in the manifest so the preload phase is valid.
+        def marker = new File(deployedAssets, 'README.txt')
+        if (!marker.exists()) {
+            marker.text = 'Fly Like an Eagle web assets.\n'
+        }
+        new File(deployedAssets, 'assets.txt').text =
+            "t:README.txt:README.txt:${marker.length()}:text/plain:1\n"
     }
 }
