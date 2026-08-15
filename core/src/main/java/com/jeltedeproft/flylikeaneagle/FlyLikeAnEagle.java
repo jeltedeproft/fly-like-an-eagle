@@ -32,16 +32,18 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private static final float LANDING_SLOPE_DEGREES = -22f;
     private static final int MAX_UPGRADE_LEVEL = 5;
 
+    // Long downhill into one large but achievable ramp. The lip is intentionally
+    // lower than the starting hill so even a level-0 sled has enough energy to launch.
     private static final Vector2[] RUN_UP_AND_RAMP = {
-        new Vector2(-20f, 14f), new Vector2(-10f, 13f), new Vector2(0f, 10f),
-        new Vector2(12f, 5f), new Vector2(22f, 1.8f), new Vector2(28f, 1.2f),
-        new Vector2(32f, 1.6f), new Vector2(36f, 2.8f), new Vector2(40f, 5f),
-        new Vector2(43.5f, 8.2f), new Vector2(46.5f, 11.8f), new Vector2(49f, 14.2f)
+        new Vector2(-20f, 15f), new Vector2(-10f, 14f), new Vector2(0f, 11f),
+        new Vector2(12f, 6f), new Vector2(24f, 2.2f), new Vector2(32f, 1.4f),
+        new Vector2(38f, 1.8f), new Vector2(43f, 3.0f), new Vector2(47f, 5.0f),
+        new Vector2(50f, 7.2f), new Vector2(52.5f, 9.0f)
     };
 
     private static final Vector2[] LANDING = {
-        new Vector2(64f, 8.5f), new Vector2(72f, 5.2f), new Vector2(84f, 2.3f),
-        new Vector2(100f, 0f), new Vector2(220f, 0f)
+        new Vector2(68f, 7.2f), new Vector2(78f, 4.2f), new Vector2(92f, 1.8f),
+        new Vector2(108f, 0f), new Vector2(220f, 0f)
     };
 
     private enum RunState { RUNNING, FINISHED }
@@ -112,7 +114,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         ChainShape shape = new ChainShape();
         shape.createChain(points);
         Fixture fixture = terrain.createFixture(shape, 0f);
-        fixture.setFriction(0.08f);
+        fixture.setFriction(0.025f);
         fixture.setUserData(tag);
         shape.dispose();
     }
@@ -160,7 +162,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(-14f, 15.2f);
+        bodyDef.position.set(-14f, 16.2f);
         bodyDef.angle = -0.08f;
         bodyDef.angularDamping = 0.16f;
         sled = world.createBody(bodyDef);
@@ -170,13 +172,13 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1.2f;
-        fixtureDef.friction = 0.04f;
+        fixtureDef.friction = 0.015f;
         fixtureDef.restitution = 0.05f;
         Fixture sledFixture = sled.createFixture(fixtureDef);
         sledFixture.setUserData("sled");
         shape.dispose();
 
-        sled.setLinearVelocity(4.2f + speedLevel * 0.75f, 0f);
+        sled.setLinearVelocity(7.5f + speedLevel * 1.15f, 0f);
         startX = sled.getPosition().x;
         stationaryTime = 0f;
         runTime = 0f;
@@ -202,6 +204,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
             if (Gdx.input.isKeyJustPressed(Input.Keys.R) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) startRun();
         } else {
             updateControls();
+            applyRampAssist();
             applyGlideAssist();
             stepPhysics(delta);
             updateRunState(delta);
@@ -217,7 +220,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         float x = Gdx.input.getX() / (float) Gdx.graphics.getWidth();
         float y = Gdx.input.getY() / (float) Gdx.graphics.getHeight();
 
-        // Top half buys an upgrade; bottom half starts the next run.
         if (y < 0.52f) {
             if (x < 0.333f) buyUpgrade(0);
             else if (x < 0.666f) buyUpgrade(1);
@@ -244,7 +246,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void updateControls() {
-        if (!launched && sled.getPosition().x > 48.7f) launched = true;
+        if (!launched && sled.getPosition().x > 52.2f) launched = true;
 
         boolean pitchLeft = Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.A);
         boolean pitchRight = Gdx.input.isKeyPressed(Input.Keys.RIGHT) || Gdx.input.isKeyPressed(Input.Keys.D);
@@ -260,12 +262,23 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         if (pitchRight) sled.applyTorque(-torque, true);
     }
 
+    private void applyRampAssist() {
+        if (launched) return;
+        float x = sled.getPosition().x;
+        if (x > 34f && x < 52.5f) {
+            // Small hidden assist keeps the base game fun without making upgrades irrelevant.
+            float minForwardSpeed = 13f + speedLevel * 1.2f;
+            float vx = sled.getLinearVelocity().x;
+            if (vx < minForwardSpeed) {
+                sled.applyForceToCenter((minForwardSpeed - vx) * 7f, 0f, true);
+            }
+        }
+    }
+
     private void applyGlideAssist() {
         if (!launched || touchedLanding || glideLevel == 0) return;
         Vector2 velocity = sled.getLinearVelocity();
-        if (velocity.y < 1f) {
-            sled.applyForceToCenter(0f, glideLevel * 1.45f, true);
-        }
+        if (velocity.y < 1f) sled.applyForceToCenter(0f, glideLevel * 1.45f, true);
     }
 
     private void stepPhysics(float delta) {
