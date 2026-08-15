@@ -29,7 +29,17 @@ tasks.register('dist', JavaExec) {
         project(':core').sourceSets.main.java.srcDirs,
         project(':core').sourceSets.main.resources.srcDirs
     )
-    args '-war', layout.buildDirectory.dir('dist').get().asFile.absolutePath,
+
+    def distDir = layout.buildDirectory.dir('dist').get().asFile
+    doFirst {
+        delete distDir
+        copy {
+            from 'src/main/webapp'
+            into distDir
+        }
+    }
+
+    args '-war', distDir.absolutePath,
          '-style', 'OBF', '-optimize', '9',
          'com.jeltedeproft.flylikeaneagle.GdxDefinition'
 }
