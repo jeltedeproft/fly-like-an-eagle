@@ -6,7 +6,7 @@
   <inherits name="com.badlogic.gdx.physics.box2d.box2d-gwt"/>
   <inherits name="com.jeltedeproft.flylikeaneagle.FlyLikeAnEagle"/>
   <entry-point class="com.jeltedeproft.flylikeaneagle.client.HtmlLauncher"/>
-  <set-configuration-property name="gdx.assetpath" value="../webapp/"/>
+  <set-configuration-property name="gdx.assetpath" value="../assets"/>
   <set-configuration-property name="xsiframe.failIfScriptTag" value="FALSE"/>
   <set-property name="user.agent" value="gecko1_8, safari"/>
 </module>
