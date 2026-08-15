@@ -7,4 +7,4 @@ pluginManagement {
 }
 
 rootProject.name = 'fly-like-an-eagle'
-include 'core', 'lwjgl3'
+include 'core', 'lwjgl3', 'html'
