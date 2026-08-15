@@ -3,6 +3,7 @@ package com.jeltedeproft.flylikeaneagle;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -25,10 +26,11 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 public class FlyLikeAnEagle extends ApplicationAdapter {
     private static final float STEP = 1f / 60f;
     private static final float GROUND_PITCH_TORQUE = 12f;
-    private static final float AIR_PITCH_TORQUE = 31f;
+    private static final float BASE_AIR_PITCH_TORQUE = 25f;
     private static final float FINISH_SPEED = 0.7f;
     private static final float FINISH_DELAY = 1.25f;
     private static final float LANDING_SLOPE_DEGREES = -22f;
+    private static final int MAX_UPGRADE_LEVEL = 5;
 
     private static final Vector2[] RUN_UP_AND_RAMP = {
         new Vector2(-20f, 14f), new Vector2(-10f, 13f), new Vector2(0f, 10f),
@@ -50,6 +52,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private OrthographicCamera camera;
     private ExtendViewport viewport;
     private ShapeRenderer shapes;
+    private Preferences progress;
 
     private float accumulator;
     private float startX;
@@ -63,16 +66,40 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private RunState state;
     private Outcome outcome;
 
+    private int coins;
+    private int speedLevel;
+    private int glideLevel;
+    private int controlLevel;
+    private int lastReward;
+
     @Override
     public void create() {
-        // Slightly lighter gravity gives the big jump more hangtime without becoming floaty.
         world = new World(new Vector2(0f, -7.4f), true);
         camera = new OrthographicCamera();
         viewport = new ExtendViewport(32f, 18f, camera);
         shapes = new ShapeRenderer();
+        progress = Gdx.app.getPreferences("fly-like-an-eagle-progress");
+        loadProgress();
         createTerrain();
         installContactListener();
         startRun();
+    }
+
+    private void loadProgress() {
+        coins = progress.getInteger("coins", 0);
+        speedLevel = progress.getInteger("speed", 0);
+        glideLevel = progress.getInteger("glide", 0);
+        controlLevel = progress.getInteger("control", 0);
+        bestDistance = progress.getFloat("best", 0f);
+    }
+
+    private void saveProgress() {
+        progress.putInteger("coins", coins);
+        progress.putInteger("speed", speedLevel);
+        progress.putInteger("glide", glideLevel);
+        progress.putInteger("control", controlLevel);
+        progress.putFloat("best", bestDistance);
+        progress.flush();
     }
 
     private void createTerrain() {
@@ -149,13 +176,14 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         sledFixture.setUserData("sled");
         shape.dispose();
 
-        sled.setLinearVelocity(5f, 0f);
+        sled.setLinearVelocity(4.2f + speedLevel * 0.75f, 0f);
         startX = sled.getPosition().x;
         stationaryTime = 0f;
         runTime = 0f;
         accumulator = 0f;
         finalDistance = 0f;
         landingTimer = 0f;
+        lastReward = 0;
         launched = false;
         touchedLanding = false;
         outcome = Outcome.NONE;
@@ -170,10 +198,11 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         float delta = Math.min(Gdx.graphics.getDeltaTime(), 0.25f);
 
         if (state == RunState.FINISHED) {
-            if (Gdx.input.justTouched() || Gdx.input.isKeyJustPressed(Input.Keys.R)
-                || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) startRun();
+            handleUpgradeInput();
+            if (Gdx.input.isKeyJustPressed(Input.Keys.R) || Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) startRun();
         } else {
             updateControls();
+            applyGlideAssist();
             stepPhysics(delta);
             updateRunState(delta);
         }
@@ -181,6 +210,37 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         updateCamera();
         drawWorld();
         updateTitle();
+    }
+
+    private void handleUpgradeInput() {
+        if (!Gdx.input.justTouched()) return;
+        float x = Gdx.input.getX() / (float) Gdx.graphics.getWidth();
+        float y = Gdx.input.getY() / (float) Gdx.graphics.getHeight();
+
+        // Top half buys an upgrade; bottom half starts the next run.
+        if (y < 0.52f) {
+            if (x < 0.333f) buyUpgrade(0);
+            else if (x < 0.666f) buyUpgrade(1);
+            else buyUpgrade(2);
+        } else {
+            startRun();
+        }
+    }
+
+    private void buyUpgrade(int type) {
+        int level = type == 0 ? speedLevel : type == 1 ? glideLevel : controlLevel;
+        if (level >= MAX_UPGRADE_LEVEL) return;
+        int cost = upgradeCost(level);
+        if (coins < cost) return;
+        coins -= cost;
+        if (type == 0) speedLevel++;
+        else if (type == 1) glideLevel++;
+        else controlLevel++;
+        saveProgress();
+    }
+
+    private int upgradeCost(int level) {
+        return 20 + level * 20;
     }
 
     private void updateControls() {
@@ -193,9 +253,19 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
             else pitchRight = true;
         }
 
-        float torque = launched && !touchedLanding ? AIR_PITCH_TORQUE : GROUND_PITCH_TORQUE;
+        float torque = launched && !touchedLanding
+            ? BASE_AIR_PITCH_TORQUE + controlLevel * 4f
+            : GROUND_PITCH_TORQUE;
         if (pitchLeft) sled.applyTorque(torque, true);
         if (pitchRight) sled.applyTorque(-torque, true);
+    }
+
+    private void applyGlideAssist() {
+        if (!launched || touchedLanding || glideLevel == 0) return;
+        Vector2 velocity = sled.getLinearVelocity();
+        if (velocity.y < 1f) {
+            sled.applyForceToCenter(0f, glideLevel * 1.45f, true);
+        }
     }
 
     private void stepPhysics(float delta) {
@@ -228,6 +298,10 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private void finishRun() {
         finalDistance = Math.max(0f, sled.getPosition().x - startX);
         bestDistance = Math.max(bestDistance, finalDistance);
+        lastReward = Math.max(5, Math.round(finalDistance * 0.35f));
+        if (outcome == Outcome.CLEAN) lastReward += 15;
+        coins += lastReward;
+        saveProgress();
         state = RunState.FINISHED;
     }
 
@@ -267,13 +341,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
                 ? new Color(0.35f, 0.95f, 0.45f, 0.9f)
                 : new Color(0.95f, 0.25f, 0.2f, 0.9f));
             shapes.circle(p.x, p.y + 3f, 1.25f, 24);
-            shapes.setColor(Color.WHITE);
-            if (outcome == Outcome.CLEAN) {
-                shapes.rect(p.x - 0.55f, p.y + 2.9f, 1.1f, 0.2f);
-            } else {
-                shapes.rect(p.x - 0.65f, p.y + 2.9f, 1.3f, 0.2f, 0.65f, 0.1f, 1f, 1f, 45f);
-                shapes.rect(p.x - 0.65f, p.y + 2.9f, 1.3f, 0.2f, 0.65f, 0.1f, 1f, 1f, -45f);
-            }
         }
         shapes.end();
 
@@ -299,12 +366,14 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private void updateTitle() {
         float distance = state == RunState.FINISHED ? finalDistance : Math.max(0f, sled.getPosition().x - startX);
-        int speedTenths = Math.round(sled.getLinearVelocity().len() * 10f);
-        String status = state == RunState.FINISHED
-            ? (outcome == Outcome.CLEAN ? " | CLEAN LANDING | TAP TO RETRY" : " | CRASH | TAP TO RETRY")
-            : (launched ? " | AIRBORNE" : "");
-        Gdx.graphics.setTitle("Fly Like an Eagle | " + Math.round(distance) + " m | "
-            + (speedTenths / 10) + "." + (speedTenths % 10) + " m/s | Best "
+        String status;
+        if (state == RunState.FINISHED) {
+            status = " | +" + lastReward + " coins | Coins " + coins
+                + " | Upgrades S" + speedLevel + " G" + glideLevel + " C" + controlLevel;
+        } else {
+            status = launched ? " | AIRBORNE" : "";
+        }
+        Gdx.graphics.setTitle("Fly Like an Eagle | " + Math.round(distance) + " m | Best "
             + Math.round(bestDistance) + " m" + status);
     }
 
