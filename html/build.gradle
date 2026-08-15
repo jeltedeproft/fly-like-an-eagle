@@ -23,7 +23,12 @@ dependencies {
 tasks.register('dist', JavaExec) {
     dependsOn classes
     mainClass = 'com.google.gwt.dev.Compiler'
-    classpath = configurations.compiler + sourceSets.main.runtimeClasspath
+    classpath = configurations.compiler + sourceSets.main.runtimeClasspath + files(
+        sourceSets.main.java.srcDirs,
+        sourceSets.main.resources.srcDirs,
+        project(':core').sourceSets.main.java.srcDirs,
+        project(':core').sourceSets.main.resources.srcDirs
+    )
     args '-war', layout.buildDirectory.dir('dist').get().asFile.absolutePath,
          '-style', 'OBF', '-optimize', '9',
          'com.jeltedeproft.flylikeaneagle.GdxDefinition'
