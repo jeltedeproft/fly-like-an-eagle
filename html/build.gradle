@@ -31,6 +31,8 @@ tasks.register('dist', JavaExec) {
     )
 
     def distDir = layout.buildDirectory.dir('dist').get().asFile
+    def assetsDir = rootProject.file('assets')
+
     doFirst {
         delete distDir
         copy {
@@ -42,4 +44,23 @@ tasks.register('dist', JavaExec) {
     args '-war', distDir.absolutePath,
          '-style', 'OBF', '-optimize', '9',
          'com.jeltedeproft.flylikeaneagle.GdxDefinition'
+
+    doLast {
+        def deployedAssets = new File(distDir, 'assets')
+        deployedAssets.mkdirs()
+
+        if (assetsDir.exists()) {
+            copy {
+                from assetsDir
+                into deployedAssets
+                exclude '.gitkeep'
+                exclude 'assets.txt'
+            }
+        }
+
+        // LibGDX's GWT preloader always requests assets.txt before starting the app.
+        // The prototype currently has no runtime assets, so an empty manifest is valid
+        // and allows the preloader to complete instead of remaining on the GDX logo.
+        new File(deployedAssets, 'assets.txt').text = ''
+    }
 }
