@@ -17,9 +17,9 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private static final float STEP = 1f / 60f;
     private static final float GROUND_PITCH_TORQUE = 22f;
     private static final float BASE_AIR_PITCH_TORQUE = 48f;
-    private static final float SETTLE_SPEED = 0.9f;
-    private static final float SETTLE_SPIN = 0.8f;
-    private static final float SETTLE_DELAY = 1.1f;
+    private static final float SETTLE_SPEED = 0.14f;
+    private static final float SETTLE_SPIN = 0.14f;
+    private static final float SETTLE_DELAY = 0.9f;
     private static final float LANDING_SLOPE_DEGREES = -17f;
     private static final int MAX_UPGRADE_LEVEL = 5;
     private static final int TRAIL_POINTS = 18;
@@ -33,8 +33,11 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
 
     private static final Vector2[] LANDING = {
         new Vector2(62f, 6.8f), new Vector2(70f, 5.2f), new Vector2(82f, 3.0f),
-        new Vector2(96f, 1.1f), new Vector2(112f, 0f), new Vector2(260f, 0f)
+        new Vector2(96f, 1.1f), new Vector2(112f, 0f), new Vector2(300f, 0f)
     };
+
+    private static final float[] PICKUP_X = {72f, 88f, 108f, 132f, 160f};
+    private static final float[] PICKUP_Y = {10f, 12f, 9f, 7f, 5f};
 
     private enum RunState { RUNNING, FINISHED }
     private enum Outcome { NONE, CLEAN, CRASH }
@@ -50,8 +53,11 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private boolean launched, touchedLanding, touchLeft, touchRight;
     private RunState state;
     private Outcome outcome;
+    private int groundContacts;
 
     private int coins, speedLevel, glideLevel, controlLevel, lastReward;
+    private int pickupCoins;
+    private final boolean[] pickupCollected = new boolean[PICKUP_X.length];
 
     private final float[] trailX = new float[TRAIL_POINTS];
     private final float[] trailY = new float[TRAIL_POINTS];
@@ -103,13 +109,24 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         world.setContactListener(new ContactListener() {
             @Override public void beginContact(Contact contact) {
                 Fixture a = contact.getFixtureA(), b = contact.getFixtureB();
-                if (isPair(a, b, "sled", "landing") && launched && !touchedLanding) {
-                    touchedLanding = true;
+                if (isPair(a, b, "sled", "landing") && launched) {
+                    groundContacts++;
                     stationaryTime = 0f;
-                    outcome = evaluateLanding();
+                    if (!touchedLanding) {
+                        touchedLanding = true;
+                        outcome = evaluateLanding();
+                    }
                 }
             }
-            @Override public void endContact(Contact contact) { }
+
+            @Override public void endContact(Contact contact) {
+                Fixture a = contact.getFixtureA(), b = contact.getFixtureB();
+                if (isPair(a, b, "sled", "landing") && launched) {
+                    groundContacts = Math.max(0, groundContacts - 1);
+                    stationaryTime = 0f;
+                }
+            }
+
             @Override public void preSolve(Contact contact, Manifold oldManifold) { }
             @Override public void postSolve(Contact contact, ContactImpulse impulse) { }
         });
@@ -159,6 +176,9 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         trailTimer = 0f;
         trailCount = 0;
         lastReward = 0;
+        pickupCoins = 0;
+        groundContacts = 0;
+        for (int i = 0; i < pickupCollected.length; i++) pickupCollected[i] = false;
         launched = touchedLanding = touchLeft = touchRight = false;
         outcome = Outcome.NONE;
         state = RunState.RUNNING;
@@ -177,6 +197,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
             applyGlideAssist();
             stepPhysics(delta);
             updateTrail(delta);
+            updatePickups();
             updateRunState(delta);
         }
         updateCamera();
@@ -215,7 +236,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
             left |= touchLeft;
             right |= touchRight;
         }
-        float torque = launched && !touchedLanding
+        float torque = launched && groundContacts == 0
             ? BASE_AIR_PITCH_TORQUE + controlLevel * 6f
             : GROUND_PITCH_TORQUE;
         if (left) sled.applyTorque(torque, true);
@@ -233,7 +254,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void applyGlideAssist() {
-        if (!launched || touchedLanding) return;
+        if (!launched || groundContacts > 0) return;
         if (glideLevel > 0 && sled.getLinearVelocity().y < 1f)
             sled.applyForceToCenter(0f, glideLevel * 1.6f, true);
     }
@@ -247,7 +268,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     }
 
     private void updateTrail(float delta) {
-        if (!launched || touchedLanding) return;
+        if (!launched || groundContacts > 0) return;
         trailTimer += delta;
         if (trailTimer < 0.08f) return;
         trailTimer = 0f;
@@ -260,12 +281,29 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         if (trailCount < TRAIL_POINTS) trailCount++;
     }
 
+    private void updatePickups() {
+        if (!launched) return;
+        Vector2 p = sled.getPosition();
+        for (int i = 0; i < PICKUP_X.length; i++) {
+            if (pickupCollected[i]) continue;
+            float dx = p.x - PICKUP_X[i];
+            float dy = p.y - PICKUP_Y[i];
+            if (dx * dx + dy * dy < 3.2f) {
+                pickupCollected[i] = true;
+                pickupCoins += 5;
+            }
+        }
+    }
+
     private void updateRunState(float delta) {
         runTime += delta;
 
-        // A run never ends in the air. It can only finish after the sled has
-        // contacted the landing terrain and then actually settled on the ground.
-        if (!touchedLanding) return;
+        // Finishing requires CURRENT ground contact. A touch followed by a bounce
+        // can never end the run while the sled is airborne.
+        if (groundContacts <= 0) {
+            stationaryTime = 0f;
+            return;
+        }
 
         float speed = sled.getLinearVelocity().len();
         float spin = Math.abs(sled.getAngularVelocity());
@@ -278,7 +316,8 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
     private void finishRun() {
         finalDistance = Math.max(0f, sled.getPosition().x - startX);
         bestDistance = Math.max(bestDistance, finalDistance);
-        lastReward = Math.max(5, Math.round(finalDistance * .35f)) + (outcome == Outcome.CLEAN ? 15 : 0);
+        lastReward = Math.max(5, Math.round(finalDistance * .35f))
+            + (outcome == Outcome.CLEAN ? 15 : 0) + pickupCoins;
         coins += lastReward;
         saveProgress();
         state = RunState.FINISHED;
@@ -298,13 +337,13 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.setProjectionMatrix(camera.combined);
         shapes.begin(ShapeRenderer.ShapeType.Filled);
 
-        // Simple scenery so the world has depth and motion even without art assets.
         shapes.setColor(1f, .9f, .35f, 1f);
         shapes.circle(22f, 22f, 2.2f, 28);
         drawCloud(-2f, 18f, 1.2f);
         drawCloud(36f, 20f, .9f);
         drawCloud(88f, 17f, 1.1f);
         drawCloud(140f, 19f, 1f);
+        drawCloud(205f, 16f, 1.15f);
 
         shapes.setColor(.23f, .55f, .25f, 1f);
         drawTerrainFill(RUN_UP_AND_RAMP);
@@ -314,7 +353,6 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         shapes.setColor(.95f, .78f, .18f, 1f);
         shapes.rect(lip.x - .35f, lip.y - .2f, .7f, .4f);
 
-        // Distance posts make long flights easier to read at a glance.
         drawDistancePost(80f, 3.5f);
         drawDistancePost(100f, 1.5f);
         drawDistancePost(120f, .3f);
@@ -322,6 +360,16 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         drawDistancePost(160f, .3f);
         drawDistancePost(180f, .3f);
         drawDistancePost(200f, .3f);
+        drawDistancePost(240f, .3f);
+
+        // Airborne coin pickups give the player something to steer toward.
+        for (int i = 0; i < PICKUP_X.length; i++) {
+            if (pickupCollected[i]) continue;
+            shapes.setColor(1f, .78f, .12f, 1f);
+            shapes.circle(PICKUP_X[i], PICKUP_Y[i], .48f, 18);
+            shapes.setColor(1f, .94f, .45f, 1f);
+            shapes.circle(PICKUP_X[i], PICKUP_Y[i], .22f, 14);
+        }
 
         if (launched) {
             for (int i = trailCount - 1; i >= 0; i--) {
@@ -348,7 +396,7 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
                 markerX + (touchLeft ? .18f : -.18f), p.y + 1.4f);
         }
 
-        if (touchedLanding && state == RunState.RUNNING) {
+        if (groundContacts > 0 && state == RunState.RUNNING) {
             shapes.setColor(outcome == Outcome.CLEAN
                 ? new Color(.35f,.95f,.45f,.55f)
                 : new Color(.95f,.25f,.2f,.55f));
@@ -401,10 +449,10 @@ public class FlyLikeAnEagle extends ApplicationAdapter {
         String status;
         if (state == RunState.FINISHED) {
             status = " | +" + lastReward + " coins | Coins " + coins + " | S" + speedLevel + " G" + glideLevel + " C" + controlLevel;
-        } else if (touchedLanding) {
-            status = outcome == Outcome.CLEAN ? " | CLEAN LANDING - SETTLING" : " | CRASH - SETTLING";
+        } else if (groundContacts > 0) {
+            status = outcome == Outcome.CLEAN ? " | CLEAN LANDING - WAIT UNTIL STOPPED" : " | CRASH - WAIT UNTIL STOPPED";
         } else {
-            status = launched ? " | AIRBORNE - HOLD LEFT/RIGHT TO ROTATE" : " | BUILDING SPEED";
+            status = launched ? " | AIRBORNE | Pickup +" + pickupCoins : " | BUILDING SPEED";
         }
         Gdx.graphics.setTitle("Fly Like an Eagle | " + Math.round(distance) + " m | Best " + Math.round(bestDistance) + " m" + status);
     }
