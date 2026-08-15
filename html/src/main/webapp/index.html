@@ -9,11 +9,29 @@
     #embed-html { width:100%; height:100%; }
     canvas { display:block; width:100% !important; height:100% !important; }
     #hint { position:fixed; left:0; right:0; bottom:12px; text-align:center; color:white; font:14px sans-serif; pointer-events:none; opacity:.7; }
+    #error { display:none; position:fixed; inset:12px; z-index:9999; overflow:auto; white-space:pre-wrap; background:rgba(0,0,0,.9); color:#ffb4b4; padding:12px; font:12px/1.4 monospace; border:1px solid #ff6b6b; }
   </style>
 </head>
 <body>
   <div id="embed-html"></div>
   <div id="hint">Hold left/right half of screen to pitch</div>
+  <pre id="error"></pre>
+  <script>
+    (function () {
+      function show(message) {
+        var el = document.getElementById('error');
+        el.style.display = 'block';
+        el.textContent += (el.textContent ? '\n\n' : '') + message;
+      }
+      window.onerror = function (message, source, line, column, error) {
+        show('JavaScript error: ' + message + '\n' + (source || '') + ':' + (line || 0) + ':' + (column || 0) + (error && error.stack ? '\n' + error.stack : ''));
+      };
+      window.addEventListener('unhandledrejection', function (event) {
+        var reason = event.reason;
+        show('Unhandled promise rejection: ' + (reason && reason.stack ? reason.stack : reason));
+      });
+    }());
+  </script>
   <script type="text/javascript" src="html/html.nocache.js"></script>
 </body>
 </html>
