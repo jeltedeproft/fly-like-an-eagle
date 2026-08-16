@@ -4,6 +4,8 @@ application {
     mainClass = 'com.jeltedeproft.flylikeaneagle.lwjgl3.Lwjgl3Launcher'
 }
 
+sourceSets.main.resources.srcDir rootProject.file('assets')
+
 dependencies {
     implementation project(':core')
     implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"

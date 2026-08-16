@@ -20,6 +20,7 @@ final class HtmlGameUi implements FlyLikeAnEagle.Ui {
         text('meters',(values.DIST||0)+' m');
         var points=element('points'); if(points&&points.firstChild)points.firstChild.nodeValue=(values.POINTS||0)+' pts';
         text('best','Best '+(values.BEST||0)+' m');
+        text('garageGold',(values.POINTS||0)+' GOLD');
         ['speed','glide','control','ramp','aero','bounce','slide'].forEach(function(id){text(id,upgrade(values[id.toUpperCase()]));});
         text('wings',part(values.WINGS)); text('susp',part(values.SUSP)); text('tail',part(values.TAIL)); text('booster',part(values.BOOSTER));
         visible('result',result,'flex'); visible('shop',shop); visible('garageLabel',shop);
