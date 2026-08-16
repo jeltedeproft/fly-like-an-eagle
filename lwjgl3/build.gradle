@@ -1,9 +1,7 @@
 apply plugin: 'application'
 
-mainClassName = 'com.jeltedeproft.flylikeaneagle.lwjgl3.Lwjgl3Launcher'
-
 application {
-    mainClass = mainClassName
+    mainClass = 'com.jeltedeproft.flylikeaneagle.lwjgl3.Lwjgl3Launcher'
 }
 
 dependencies {

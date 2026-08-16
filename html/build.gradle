@@ -1,7 +1,10 @@
 apply plugin: 'war'
 apply plugin: 'java'
 
-sourceCompatibility = 11
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 dependencies {
     implementation project(':core')
