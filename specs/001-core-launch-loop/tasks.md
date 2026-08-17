@@ -37,7 +37,7 @@
 
 - [X] T022 [US3] Draw all world, vehicle, effects, and UI in the approved palette in `src/renderer.js` and `src/style.css`
 - [X] T023 [US3] Implement persistent reduced-motion behavior in `src/main.js`
-- [ ] T024 [US3] Add original reactive sound and independent volume controls in `src/audio.js`
+- [X] T024 [US3] Add original reactive sound and independent volume controls in `src/audio.js`
 - [ ] T025 [US3] Record gameplay-scale art/readability review in `assets/art/style-test/REVIEW.md`
 
 ## Phase 6: User Story 4 - New Contraptions and Goals (P4)

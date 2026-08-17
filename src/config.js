@@ -8,4 +8,4 @@ export const UPGRADES=[
  {id:'boost',name:'Soda Rockets',description:'Hold Space in flight for a shove.',baseCost:55,max:5,effect:l=>`${(l*.35).toFixed(2)}s fuel`}
 ];
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
-export const defaultProgress=()=>({schemaVersion:1,bolts:0,best:0,levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),reducedMotion:false,runs:0});
+export const defaultProgress=()=>({schemaVersion:1,bolts:0,best:0,levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
