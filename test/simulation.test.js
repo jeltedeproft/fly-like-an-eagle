@@ -1,0 +1,4 @@
+import test from'node:test';import assert from'node:assert/strict';import{Simulation}from'../src/simulation.js';
+test('launch reaches air and completes a run',()=>{const sim=new Simulation({});sim.launch();for(let i=0;i<60*30&&sim.state!=='complete';i++)sim.step({right:i%60<20},1/60);assert.equal(sim.state,'complete');assert.ok(sim.result.distance>0);assert.ok(['clean','rough','crash'].includes(sim.result.landing))});
+test('air controls rotate in opposite directions',()=>{const left=new Simulation({control:2}),right=new Simulation({control:2});for(const sim of[left,right]){sim.state='air';sim.x=10;sim.y=20;sim.vx=10;sim.vy=0;sim.angle=0;sim.spin=0}left.step({left:true},.1);right.step({right:true},.1);assert.ok(left.angle>0);assert.ok(right.angle<0)});
+test('finish is idempotent',()=>{const sim=new Simulation({});sim.finish('stuck');const result=sim.result;sim.finish('bounds');assert.equal(sim.result,result);assert.equal(sim.result.reason,'stuck')});

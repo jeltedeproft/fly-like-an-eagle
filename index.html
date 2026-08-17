@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#201a1e">
+  <title>Fly Like an Eagle</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+  <main id="app">
+    <canvas id="game" aria-label="Fly Like an Eagle game world"></canvas>
+    <section id="hud" aria-live="polite">
+      <div><strong id="distance">0 m</strong><span id="state">READY</span></div>
+      <div class="right"><strong id="speed">0 km/h</strong><span id="best">BEST 0 m</span></div>
+    </section>
+    <section id="start" class="card hero">
+      <p class="eyebrow">SCRAPYARD FLIGHT CLUB</p>
+      <h1>Fly Like<br>an Eagle</h1>
+      <p>Your shopping cart has dreams. The hill has other plans.</p>
+      <button id="launch">LAUNCH THIS THING <kbd>Space</kbd></button>
+      <small>Airborne: A/D or ←/→ to lean · R to restart</small>
+    </section>
+    <section id="results" class="card hidden">
+      <p class="eyebrow">RUN COMPLETE</p>
+      <h2 id="result-distance">0 m</h2>
+      <div class="receipt"><span>Distance</span><b id="base-reward">+0</b><span>Landing</span><b id="landing-reward">+0</b><span>Total</span><b id="total-reward">+0 bolts</b></div>
+      <p id="record"></p>
+      <div class="actions"><button id="retry">FLY AGAIN <kbd>Space</kbd></button><button id="open-shop" class="secondary">WORKSHOP</button></div>
+    </section>
+    <section id="shop" class="card workshop hidden">
+      <header><div><p class="eyebrow">BARNYARD ENGINEERING</p><h2>Workshop</h2></div><strong id="wallet">0 BOLTS</strong></header>
+      <div id="upgrades" class="upgrade-grid"></div>
+      <button id="shop-launch">BACK TO THE HILL <kbd>Space</kbd></button>
+    </section>
+    <button id="motion" class="corner" aria-pressed="false">FX: FULL</button>
+  </main>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

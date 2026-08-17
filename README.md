@@ -1,16 +1,30 @@
 # Fly Like an Eagle
 
-2D hill-launch distance game built with LibGDX.
+A clean-slate, dependency-free browser launch game about sending a terrible scrap-built vehicle down a
+huge ramp, flying as far as possible, earning bolts, and upgrading the contraption for the next run.
 
-Initial prototype goals:
-- Box2D sled physics
-- generated hill and ramp
-- camera follow
-- airborne pitch control
-- distance/speed HUD
-- instant restart
+## Play locally
 
-## Art credits
+Requires Node.js 20 or later.
 
-Pixel Airship by Masalimov Ilnur — https://masalimov-ilnur.itch.io/
-Licensed under CC BY 4.0.
+```powershell
+npm start
+```
+
+Open <http://127.0.0.1:4173>.
+
+## Controls
+
+- `Space`: launch, retry, or use an installed soda-rocket boost while airborne
+- `A` / `D` or `Left` / `Right`: lean in the air
+- `R`: restart immediately
+- Pointer/touch: press the left or right half of the game while airborne
+
+## Tests
+
+```powershell
+npm test
+```
+
+Art is code-native and constrained to [`assets/art/palette.hex`](assets/art/palette.hex). Historical
+commercial-game-derived assets are intentionally excluded; see [`assets/ASSET_LEDGER.md`](assets/ASSET_LEDGER.md).

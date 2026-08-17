@@ -1,0 +1,3 @@
+import test from'node:test';import assert from'node:assert/strict';import{sanitize,loadProgress,saveProgress}from'../src/storage.js';
+test('sanitize repairs corrupt fields',()=>{const p=sanitize({bolts:-5,best:'nope',runs:2.8,reducedMotion:1,levels:{launch:99,aero:-3}});assert.equal(p.bolts,0);assert.equal(p.best,0);assert.equal(p.runs,2);assert.equal(p.levels.launch,5);assert.equal(p.levels.aero,0);assert.equal(p.reducedMotion,true)});
+test('save and load round trip',()=>{const map=new Map(),store={getItem:k=>map.get(k)??null,setItem:(k,v)=>map.set(k,v)};const p=sanitize({bolts:123,best:44,levels:{control:2}});saveProgress(p,store);assert.deepEqual(loadProgress(store),p)});
