@@ -14,7 +14,7 @@ export const PARTS=[
  {id:'rocketpack',name:'Twin Soda Rockets',description:'Two very visible tanks with serious thrust time.',cost:180,effect:'+1.40s boost fuel'}
 ];
 export const FACILITY_UPGRADES=[
- {id:'ramp',name:'Bigger Launch Ramp',description:'Raise and extend the takeoff lip for every vehicle.',baseCost:160,max:4,effect:l=>l?`Ramp size +${l*12}% · launch +${l*6}%`:'Small stock ramp'}
+ {id:'ramp',name:'Launch Facility',names:['Rotten Plank Ramp','Reinforced Ski Ramp','Scrapyard Launch Tower','Rocket Rail','Mountain Cannon','Orbital Railgun','Lunar Slingshot','Reality Catapult'],description:'Replace the entire launch site with increasingly unreasonable engineering.',baseCost:160,max:7,effect:l=>`${['WOOD','STEEL','TOWER','ROCKET','MOUNTAIN','ORBITAL','LUNAR','REALITY'][l]} CLASS · launch +${l*8}%`}
 ];
 export const VEHICLES=[
  {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',rewardScale:1,stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
