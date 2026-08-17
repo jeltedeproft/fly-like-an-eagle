@@ -51,6 +51,17 @@ The player can quickly see the ordered vehicle ladder, current selection, unlock
 1. **Given** the workshop, **When** viewing vehicles, **Then** their generation order and locked, unlocked, or selected state are visually obvious.
 2. **Given** a vehicle is selected, **When** viewing upgrades and parts, **Then** only that vehicle's progression is displayed and changed.
 
+### User Story 4 - Improve the Launch Site (Priority: P2)
+
+The player can invest in global facilities outside the selected vehicle, beginning with a visibly larger launch ramp that benefits every generation.
+
+**Independent Test**: Purchase each ramp level and verify the takeoff structure becomes taller and steeper while the same vehicle achieves greater range.
+
+**Acceptance Scenarios**:
+
+1. **Given** sufficient bolts, **When** a ramp expansion is purchased, **Then** its global level persists and the physical ramp visibly grows.
+2. **Given** two otherwise identical runs, **When** one uses an expanded ramp, **Then** it launches higher and farther than the stock ramp.
+
 ### Edge Cases
 
 - Unlocks must occur in order and must never be awarded repeatedly.
@@ -73,12 +84,15 @@ The player can quickly see the ordered vehicle ladder, current selection, unlock
 - **FR-009**: Every generation MUST have an unmistakably distinct silhouette using the master palette and established art style.
 - **FR-010**: The final generation MUST clearly read as an absurd improvised spacecraft.
 - **FR-011**: The vehicle ladder MUST communicate generation order, selection state, and next unlock requirement with minimal text.
+- **FR-012**: The workshop MUST offer persistent global facility upgrades separately from vehicle-specific progression.
+- **FR-013**: The initial facility upgrade MUST provide at least four visible ramp-expansion levels that improve launch height and range for every vehicle.
 
 ### Key Entities
 
 - **Vehicle Generation**: One ordered contraption with base performance, visual identity, unlock goal, and progression state.
 - **Vehicle Progress**: Upgrade levels and installed parts owned specifically by one vehicle.
 - **Unlock Milestone**: A one-time distance goal that opens the next generation and grants a celebration.
+- **Facility Upgrade**: A persistent improvement to the launch site shared by all vehicles.
 
 ## Success Criteria
 
@@ -89,6 +103,7 @@ The player can quickly see the ordered vehicle ladder, current selection, unlock
 - **SC-003**: Switching among vehicles preserves 100% of their independent upgrade and part states across 20 switches and a reload.
 - **SC-004**: 100% of old valid upgrades and parts remain available on the starter after migration.
 - **SC-005**: All four silhouettes are distinguishable at the smallest supported gameplay viewport.
+- **SC-006**: A maximum-level ramp increases the same vehicle's tested range by at least 20% over the stock ramp.
 
 ## Assumptions
 
