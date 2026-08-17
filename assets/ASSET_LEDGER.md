@@ -12,3 +12,4 @@
 | `assets/audio/sfx/ramp-lip-knock.wav` | Davit Masia / Kronbits | MyRecordings, “Foley Furniture Impact Wood” | Personal/commercial use; no credit required | Approved | Natural takeoff knock layered with air |
 | `assets/audio/sfx/Car Engine *.wav` | User-provided collection | Added directly to the project audio folder | Rights confirmation required before public release | Prototype-only | Random starts/stops plus speed-responsive engine loop |
 | `assets/audio/sfx/Car Horn-Honk*.wav` | User-provided collection | Added directly to the project audio folder | Rights confirmation required before public release | Prototype-only | Fifteen sparse randomized honks |
+| `assets/audio/normalized/**` | Derived from corresponding audio sources above | Project loudness-normalization pass | Inherits each source file's license/status | Prototype-only | Runtime copies normalized to -16 LUFS, -1.5 dBTP, 44.1 kHz; originals remain untouched |
