@@ -63,7 +63,30 @@ tasks.register('dist', JavaExec) {
 
         def marker = new File(deployedAssets, 'README.txt')
         if (!marker.exists()) marker.text = 'Fly Like an Eagle web assets.\n'
-        new File(deployedAssets, 'assets.txt').text =
-            "t:README.txt:README.txt:${marker.length()}:text/plain:1\n"
+        def preload = [
+            'fly.png',
+            'ui-font.png',
+            'Pixel Airship/Pixel Airship/10_Backgrounds/BG.png',
+            'Pixel Airship/Pixel Airship/10_Backgrounds/Cloud.png',
+            'Pixel Airship/Pixel Airship/09_UI/Icons/UI_Icons_Red.png',
+            'Pixel Airship/Pixel Airship/09_UI/Ship_Interface/Ship_Interface_UI_Elements.png',
+            'Pixel Airship/Pixel Airship/09_UI/Tactical_UI/Tactical_UI_Elements.png',
+            'Pixel Airship/Pixel Airship/05_Props/Ship_Props.png',
+            'Pixel Airship/Pixel Airship/04_Effects/Fire/Fire.png',
+            'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip1.png',
+            'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip5.png',
+            'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip9.png',
+            'aviation-landscape-v2.png'
+        ]
+        def manifest = "t:README.txt:README.txt:${marker.length()}:text/plain:1\n"
+        preload.each { path ->
+            def file = new File(deployedAssets, path)
+            manifest += "i:${path}:${path}:${file.length()}:image/png:1\n"
+        }
+        ['fly.atlas','ui-font.fnt'].each { path ->
+            def file = new File(deployedAssets, path)
+            manifest += "t:${path}:${path}:${file.length()}:text/plain:1\n"
+        }
+        new File(deployedAssets, 'assets.txt').text = manifest
     }
 }
