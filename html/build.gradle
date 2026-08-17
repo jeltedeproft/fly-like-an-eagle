@@ -76,7 +76,9 @@ tasks.register('dist', JavaExec) {
             'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip1.png',
             'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip5.png',
             'Pixel Airship/Pixel Airship/01_Airships/Animated_Airships/AirShip9.png',
-            'aviation-landscape-v2.png'
+            'aviation-landscape-v2.png',
+            'aviation-sky-to-space.png',
+            'steampunk-ramp-u.png'
         ]
         def manifest = "t:README.txt:README.txt:${marker.length()}:text/plain:1\n"
         preload.each { path ->
