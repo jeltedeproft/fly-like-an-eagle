@@ -39,4 +39,4 @@ export const POWER_SYSTEMS={
 export const powerCost=(system,level)=>Math.round(system.baseCost*Math.pow(7,level));
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
 export const defaultVehicleBuild=()=>({levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false])),powerLevel:0});
-export const defaultProgress=()=>({schemaVersion:6,bolts:0,best:0,vehicleProgress:Object.fromEntries(VEHICLES.map(v=>[v.id,defaultVehicleBuild()])),facilities:Object.fromEntries(FACILITY_UPGRADES.map(f=>[f.id,0])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
+export const defaultProgress=()=>({schemaVersion:7,bolts:0,best:0,prestige:{genius:0},vehicleProgress:Object.fromEntries(VEHICLES.map(v=>[v.id,defaultVehicleBuild()])),facilities:Object.fromEntries(FACILITY_UPGRADES.map(f=>[f.id,0])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
