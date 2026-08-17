@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#201a1e">
   <title>Fly Like an Eagle</title>
   <link rel="stylesheet" href="src/style.css">
+  <link rel="stylesheet" href="src/workshop.css">
 </head>
 <body>
   <main id="app">
@@ -31,7 +32,11 @@
     </section>
     <section id="shop" class="card workshop hidden">
       <header><div><p class="eyebrow">BARNYARD ENGINEERING</p><h2>Workshop</h2></div><strong id="wallet">0 BOLTS</strong></header>
+      <canvas id="vehicle-preview" aria-label="Preview of installed vehicle parts"></canvas>
+      <h3 class="shop-heading">PERFORMANCE UPGRADES</h3>
       <div id="upgrades" class="upgrade-grid"></div>
+      <h3 class="shop-heading">VISIBLE CAR PARTS</h3>
+      <div id="parts" class="upgrade-grid part-grid"></div>
       <button id="shop-launch">BACK TO THE HILL <kbd>Space</kbd></button>
     </section>
     <div class="corner audio-controls">

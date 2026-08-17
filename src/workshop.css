@@ -1,0 +1,46 @@
+.workshop {
+  width: min(94vw, 900px);
+  max-width: 900px;
+  max-height: 94vh;
+  overflow: auto;
+}
+
+.shop-heading {
+  margin: 12px 0 -7px;
+  color: var(--rust);
+  font: 900 12px/1 system-ui, sans-serif;
+  letter-spacing: .14em;
+}
+
+#vehicle-preview {
+  display: block;
+  width: 100%;
+  height: 112px;
+  margin: 5px 0 15px;
+  background: var(--sky);
+  border: 3px solid var(--ink);
+}
+
+.part-grid { grid-template-columns: repeat(4, 1fr); }
+.upgrade.part { min-height: 165px; }
+.upgrade.installed {
+  background: var(--cream);
+  box-shadow: inset 0 0 0 4px var(--gold);
+}
+
+.part-status {
+  color: var(--rust);
+  font: 900 10px/1 system-ui, sans-serif;
+  letter-spacing: .1em;
+}
+
+.installed .part-status { color: var(--ink); }
+
+@media (max-width: 760px) {
+  .workshop .upgrade-grid {
+    max-height: none;
+    overflow: visible;
+  }
+  .part-grid { grid-template-columns: repeat(2, 1fr); }
+  #vehicle-preview { height: 95px; }
+}
