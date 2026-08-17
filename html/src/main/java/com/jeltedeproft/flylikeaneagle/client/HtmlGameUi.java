@@ -15,15 +15,17 @@ final class HtmlGameUi implements FlyLikeAnEagle.Ui {
         function visible(id, yes, display) { var e=element(id); if(e)e.style.display=yes?(display||'block'):'none'; }
         function text(id, value) { var e=element(id); if(e)e.textContent=value; }
         function upgrade(value) { var p=(value||'').split('/'); return p[1]==='MAX'?'Lv '+p[0]+' MAX':'Lv '+p[0]+' - '+p[1]+' pts'; }
-        function part(value) { return value==='OWNED'?'OWNED':(value||'').replace('BUY ','')+' pts'; }
+        function part(value, base) { return value==='FITTED'?'OWNED':'BUY '+(base+(parseInt(values.GEN||'1',10)-1)*30)+' pts'; }
         var screen=values.STATE, result=screen==='RESULT', shop=screen==='SHOP', running=!result&&!shop;
         text('meters',(values.DIST||0)+' m');
         var points=element('points'); if(points&&points.firstChild)points.firstChild.nodeValue=(values.POINTS||0)+' pts';
         text('best','Best '+(values.BEST||0)+' m');
         text('garageGold',(values.POINTS||0)+' GOLD');
         ['speed','glide','control','ramp','aero','bounce','slide'].forEach(function(id){text(id,upgrade(values[id.toUpperCase()]));});
-        text('wings',part(values.WINGS)); text('susp',part(values.SUSP)); text('tail',part(values.TAIL)); text('booster',part(values.BOOSTER));
-        text('sled',values.SLED||'SELECT'); text('rocket',values.ROCKET||'1400 pts'); text('ufo',values.UFO||'2800 pts');
+        text('wings',part(values.WINGS,120)); text('susp',part(values.SUSP,100)); text('tail',part(values.TAIL,110)); text('booster',part(values.BOOSTER,150));
+        var owned=[values.WINGS,values.SUSP,values.TAIL,values.BOOSTER].filter(function(v){return v==='FITTED';}).length;
+        text('generation',values.GEN); text('model',values.MODEL); text('development','Stats '+values.DEV+' · Parts '+owned+'/4');
+        text('nextGeneration',values.GEN==='3'?'FINAL MODEL':values.CANADVANCE==='true'?'TAP TO ADVANCE':'FULL UPGRADES NEEDED');
         visible('result',result,'flex'); visible('shop',shop); visible('garageLabel',shop);
         visible('left',running); visible('right',running); visible('hint',running); visible('meters',running);
         if(result){text('landed',(values.LAND==='-1'?0:values.LAND)+' m');text('reward','+'+(values.REWARD||0)+' points earned');text('outcome',values.OUTCOME==='CLEAN'?'Clean landing bonus included!':'Distance and pickups added to your total');}
