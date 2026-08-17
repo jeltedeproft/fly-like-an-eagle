@@ -23,6 +23,7 @@ final class HtmlGameUi implements FlyLikeAnEagle.Ui {
         text('garageGold',(values.POINTS||0)+' GOLD');
         ['speed','glide','control','ramp','aero','bounce','slide'].forEach(function(id){text(id,upgrade(values[id.toUpperCase()]));});
         text('wings',part(values.WINGS)); text('susp',part(values.SUSP)); text('tail',part(values.TAIL)); text('booster',part(values.BOOSTER));
+        text('sled',values.SLED||'SELECT'); text('rocket',values.ROCKET||'1400 pts'); text('ufo',values.UFO||'2800 pts');
         visible('result',result,'flex'); visible('shop',shop); visible('garageLabel',shop);
         visible('left',running); visible('right',running); visible('hint',running); visible('meters',running);
         if(result){text('landed',(values.LAND==='-1'?0:values.LAND)+' m');text('reward','+'+(values.REWARD||0)+' points earned');text('outcome',values.OUTCOME==='CLEAN'?'Clean landing bonus included!':'Distance and pickups added to your total');}

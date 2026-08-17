@@ -4,6 +4,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#141c29;tou
 @font-face{font-family:PlayGame;src:url('assets/Play-Bold.ttf') format('truetype');font-weight:700;font-display:swap}
 html,body{font-family:PlayGame,"Trebuchet MS",system-ui,sans-serif}
 #result{background:#07101d55}
+.stats1{top:12%;height:16%}.stats2{top:31%;height:16%}.parts{top:50%;height:16%}.vehicles{top:69%;height:16%}
 </style></head><body>
 <div id="embed-html"></div>
 <div id="hud" class="overlay"><div id="meters">0 m</div><div id="points">0 pts<br><span id="best">Best 0 m</span></div></div>
@@ -13,6 +14,7 @@ html,body{font-family:PlayGame,"Trebuchet MS",system-ui,sans-serif}
   <div class="row stats1"><div class="card">⚡ SPEED<span id="speed"></span></div><div class="card">🪶 GLIDE<span id="glide"></span></div><div class="card">↻ CONTROL<span id="control"></span></div><div class="card">🚀 RAMP<span id="ramp"></span></div></div>
   <div class="row stats2"><div class="card">🌬 AERO<span id="aero"></span></div><div class="card">⚽ BOUNCE<span id="bounce"></span></div><div class="card">🛷 SLIDE<span id="slide"></span></div><div class="card blank"></div></div>
   <div class="row parts"><div class="card part">🪽 WINGS<span id="wings"></span></div><div class="card part">🛞 SUSPENSION<span id="susp"></span></div><div class="card part">🧭 TAIL<span id="tail"></span></div><div class="card part">🔥 BOOSTER<span id="booster"></span></div></div>
+  <div class="row vehicles"><div class="card part">🛷 SLED<span id="sled"></span></div><div class="card part">🚀 ROCKET<span id="rocket"></span></div><div class="card part">🛸 UFO<span id="ufo"></span></div><div class="card blank"></div></div>
   <div id="launchButton">LAUNCH AGAIN</div>
 </div>
 <div id="left" class="side overlay">↺ HOLD LEFT</div><div id="right" class="side overlay">HOLD RIGHT ↻</div><div id="hint" class="overlay">Control your pitch in the air and land smoothly</div><pre id="error"></pre>
