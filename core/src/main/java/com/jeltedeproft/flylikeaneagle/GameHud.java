@@ -34,17 +34,18 @@ final class GameHud implements Disposable {
     private final TextButton advance;
 
     GameHud(final Actions actions) {
-        Texture shipUi = new Texture(Gdx.files.internal("Pixel Airship/Pixel Airship/09_UI/Ship_Interface/Ship_Interface_UI_Elements.png"));
-        Texture tacticalUi = new Texture(Gdx.files.internal("Pixel Airship/Pixel Airship/09_UI/Tactical_UI/Tactical_UI_Elements.png"));
-        shipUi.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest); tacticalUi.setFilter(Texture.TextureFilter.Nearest,Texture.TextureFilter.Nearest);
-        skin.add("ship-ui-texture",shipUi); skin.add("tactical-ui-texture",tacticalUi);
-        skin.add("window",new NinePatchDrawable(new NinePatch(new TextureRegion(shipUi,16,160,196,144),12,12,12,12)),Drawable.class);
-        skin.add("panel",new NinePatchDrawable(new NinePatch(new TextureRegion(shipUi,240,160,132,82),8,8,8,8)),Drawable.class);
-        skin.add("button",new NinePatchDrawable(new NinePatch(new TextureRegion(shipUi,128,32,32,16),6,6,5,5)),Drawable.class);
-        skin.add("button-down",new NinePatchDrawable(new NinePatch(new TextureRegion(shipUi,164,32,16,16),5,5,5,5)),Drawable.class);
-        skin.add("button-over",new NinePatchDrawable(new NinePatch(new TextureRegion(shipUi,184,32,16,16),5,5,5,5)),Drawable.class);
-        skin.add("hud",new NinePatchDrawable(new NinePatch(new TextureRegion(tacticalUi,16,16,438,80),36,24,20,20)),Drawable.class);
-        BitmapFont font = new BitmapFont(Gdx.files.internal("ui-font.fnt"));
+        Texture panelUi = new Texture(Gdx.files.internal("pack/ui/panel.png"));
+        Texture buttonUi = new Texture(Gdx.files.internal("pack/ui/button.png"));
+        Texture buttonFocusUi = new Texture(Gdx.files.internal("pack/ui/button-focus.png"));
+        panelUi.setFilter(Texture.TextureFilter.Linear,Texture.TextureFilter.Linear); buttonUi.setFilter(Texture.TextureFilter.Linear,Texture.TextureFilter.Linear); buttonFocusUi.setFilter(Texture.TextureFilter.Linear,Texture.TextureFilter.Linear);
+        skin.add("panel-ui-texture",panelUi); skin.add("button-ui-texture",buttonUi); skin.add("button-focus-ui-texture",buttonFocusUi);
+        skin.add("window",new NinePatchDrawable(new NinePatch(new TextureRegion(panelUi),28,28,28,28)),Drawable.class);
+        skin.add("panel",new NinePatchDrawable(new NinePatch(new TextureRegion(panelUi),28,28,28,28)),Drawable.class);
+        skin.add("button",new NinePatchDrawable(new NinePatch(new TextureRegion(buttonUi),34,34,28,28)),Drawable.class);
+        skin.add("button-down",new NinePatchDrawable(new NinePatch(new TextureRegion(buttonFocusUi),38,38,32,32)),Drawable.class);
+        skin.add("button-over",new NinePatchDrawable(new NinePatch(new TextureRegion(buttonFocusUi),38,38,32,32)),Drawable.class);
+        skin.add("hud",new NinePatchDrawable(new NinePatch(new TextureRegion(panelUi),28,28,28,28)),Drawable.class);
+        BitmapFont font = new BitmapFont(Gdx.files.internal("pack/fonts/gamefont.fnt"));
         font.getRegion().getTexture().setFilter(com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest, com.badlogic.gdx.graphics.Texture.TextureFilter.Nearest);
         skin.add("default-font", font);
         skin.add("default", new Label.LabelStyle(font, new Color(.94f,.85f,.63f,1)));
