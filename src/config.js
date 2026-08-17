@@ -30,6 +30,13 @@ export const MILESTONES=[
  {id:'distance-310',name:'Junkyard Space Program',description:'Travel 6 kilometres and unlock the Scrapstar UFO.',reward:30000,unlockVehicle:'scrapstar',test:({result,progress})=>progress.unlockedVehicles.includes('coffin')&&result.distance>=6000},
  {id:'runs-10',name:'Frequent Flier',description:'Complete 10 runs.',reward:100,test:({progress})=>progress.runs>=10}
 ];
+export const POWER_SYSTEMS={
+ cart:{name:'Hamster Overdrive',description:'A determined wheel-driven reactor bolted to the back.',baseCost:900,max:3,multiplier:1.55},
+ bathtub:{name:'Boiler Jets',description:'Weaponised plumbing turns bathwater into thrust.',baseCost:6500,max:4,multiplier:1.75},
+ coffin:{name:'Nuclear Afterburner',description:'Definitely not approved for funeral use.',baseCost:80000,max:5,multiplier:2.05},
+ scrapstar:{name:'Antimatter Warp Core',description:'Folds the road, sky, and common sense.',baseCost:1500000,max:6,multiplier:2.5}
+};
+export const powerCost=(system,level)=>Math.round(system.baseCost*Math.pow(7,level));
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
-export const defaultVehicleBuild=()=>({levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false]))});
-export const defaultProgress=()=>({schemaVersion:5,bolts:0,best:0,vehicleProgress:Object.fromEntries(VEHICLES.map(v=>[v.id,defaultVehicleBuild()])),facilities:Object.fromEntries(FACILITY_UPGRADES.map(f=>[f.id,0])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
+export const defaultVehicleBuild=()=>({levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false])),powerLevel:0});
+export const defaultProgress=()=>({schemaVersion:6,bolts:0,best:0,vehicleProgress:Object.fromEntries(VEHICLES.map(v=>[v.id,defaultVehicleBuild()])),facilities:Object.fromEntries(FACILITY_UPGRADES.map(f=>[f.id,0])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
