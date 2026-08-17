@@ -13,5 +13,15 @@ export const PARTS=[
  {id:'tailwing',name:'Moss Tail Wing',description:'A giant scrapyard spoiler. Command the air.',cost:135,effect:'+25% air control'},
  {id:'rocketpack',name:'Twin Soda Rockets',description:'Two very visible tanks with serious thrust time.',cost:180,effect:'+1.40s boost fuel'}
 ];
+export const VEHICLES=[
+ {id:'cart',name:'Rustbucket Cart',description:'Quick off the hill and easy to wrestle around, but flimsy in flight.',strength:'FAST LAUNCH · SHARP CONTROL',weakness:'WEAK GLIDE · FRAGILE',stats:{launch:1,drag:1,control:1,tolerance:0,slide:0}},
+ {id:'bathtub',name:'Bathtub Bullet',description:'Heavy porcelain glides and lands beautifully, but starts slowly and turns like a bath.',strength:'STRONG GLIDE · TOUGH LANDING',weakness:'SLOW LAUNCH · HEAVY CONTROL',stats:{launch:.82,drag:.62,control:.76,tolerance:.14,slide:.1},unlock:'distance-150'}
+];
+export const MILESTONES=[
+ {id:'distance-50',name:'Cleared the Junkyard',description:'Travel 50 metres in one run.',reward:30,test:({result})=>result.distance>=50},
+ {id:'clean-landing',name:'Any Landing You Walk From',description:'Make your first clean landing.',reward:45,test:({result})=>result.landing==='clean'},
+ {id:'distance-150',name:'Porcelain Pioneer',description:'Travel 150 metres and unlock the Bathtub Bullet.',reward:75,unlockVehicle:'bathtub',test:({result})=>result.distance>=150},
+ {id:'runs-10',name:'Frequent Flier',description:'Complete 10 runs.',reward:100,test:({progress})=>progress.runs>=10}
+];
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
-export const defaultProgress=()=>({schemaVersion:2,bolts:0,best:0,levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false])),reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
+export const defaultProgress=()=>({schemaVersion:3,bolts:0,best:0,levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});

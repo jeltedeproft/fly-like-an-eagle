@@ -16,6 +16,7 @@
       <div class="right"><strong id="speed">0 km/h</strong><span id="best">BEST 0 m</span></div>
     </section>
     <div id="countdown" class="countdown hidden" aria-live="assertive"></div>
+    <aside id="milestone-toast" class="milestone-toast hidden" aria-live="assertive"><p>MILESTONE!</p><h2 id="milestone-name"></h2><span id="milestone-reward"></span></aside>
     <section id="start" class="card hero">
       <p class="eyebrow">SCRAPYARD FLIGHT CLUB</p>
       <h1>Fly Like<br>an Eagle</h1>
@@ -33,10 +34,14 @@
     <section id="shop" class="card workshop hidden">
       <header><div><p class="eyebrow">BARNYARD ENGINEERING</p><h2>Workshop</h2></div><strong id="wallet">0 BOLTS</strong></header>
       <canvas id="vehicle-preview" aria-label="Preview of installed vehicle parts"></canvas>
+      <h3 class="shop-heading">CHOOSE YOUR CONTRAPTION</h3>
+      <div id="vehicles" class="vehicle-grid"></div>
       <h3 class="shop-heading">PERFORMANCE UPGRADES</h3>
       <div id="upgrades" class="upgrade-grid"></div>
       <h3 class="shop-heading">VISIBLE CAR PARTS</h3>
       <div id="parts" class="upgrade-grid part-grid"></div>
+      <h3 class="shop-heading">MILESTONES</h3>
+      <div id="milestones" class="milestone-grid"></div>
       <button id="shop-launch">BACK TO THE HILL <kbd>Space</kbd></button>
     </section>
     <div class="corner audio-controls">

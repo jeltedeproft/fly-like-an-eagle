@@ -42,9 +42,9 @@
 
 ## Phase 6: User Story 4 - New Contraptions and Goals (P4)
 
-- [ ] T026 [US4] Implement idempotent milestones and tests in `src/milestones.js` and `test/milestones.test.js`
-- [ ] T027 [US4] Add an original second vehicle with a clear strength and weakness in `src/config.js` and `src/renderer.js`
-- [ ] T028 [US4] Add unlock celebration and vehicle selection to `index.html` and `src/main.js`
+- [X] T026 [US4] Implement idempotent milestones and tests in `src/milestones.js` and `test/milestones.test.js`
+- [X] T027 [US4] Add an original second vehicle with a clear strength and weakness in `src/config.js` and `src/renderer.js`
+- [X] T028 [US4] Add unlock celebration and vehicle selection to `index.html` and `src/main.js`
 
 ## Phase 7: Validation
 
