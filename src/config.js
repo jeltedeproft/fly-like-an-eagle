@@ -17,17 +17,17 @@ export const FACILITY_UPGRADES=[
  {id:'ramp',name:'Bigger Launch Ramp',description:'Raise and extend the takeoff lip for every vehicle.',baseCost:160,max:4,effect:l=>l?`Ramp size +${l*12}% · launch +${l*6}%`:'Small stock ramp'}
 ];
 export const VEHICLES=[
- {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
- {id:'bathtub',generation:2,name:'Bathtub Bullet',description:'Porcelain engineering makes the first real leap forward.',strength:'GEN 2 · BETTER GLIDE',weakness:'UNLOCK 140 m',stats:{launch:1,drag:.82,control:.95,tolerance:.1,slide:.08},unlock:'distance-150'},
- {id:'coffin',generation:3,name:'Rocket Coffin',description:'A deeply irresponsible rocket sled built for serious distance.',strength:'GEN 3 · ROCKET POWER',weakness:'UNLOCK 180 m',stats:{launch:1.3,drag:.58,control:1.1,tolerance:.16,slide:.14},unlock:'distance-200'},
- {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · SPACE AGE',weakness:'UNLOCK 310 m',stats:{launch:1.7,drag:.3,control:1.35,tolerance:.25,slide:.22},unlock:'distance-310'}
+ {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',rewardScale:1,stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
+ {id:'bathtub',generation:2,name:'Bathtub Bullet',description:'Porcelain engineering makes the first real leap forward.',strength:'GEN 2 · SUPERSONIC BATH',weakness:'UNLOCK 140 m',rewardScale:2,stats:{launch:1.4,drag:.72,control:1.05,tolerance:.1,slide:.08},unlock:'distance-150'},
+ {id:'coffin',generation:3,name:'Rocket Coffin',description:'A deeply irresponsible rocket sled built for serious distance.',strength:'GEN 3 · HYPER ROCKET',weakness:'UNLOCK 1 km',rewardScale:6,stats:{launch:4,drag:.28,control:1.25,tolerance:.16,slide:.14},unlock:'distance-1000'},
+ {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · INTERPLANETARY',weakness:'UNLOCK 6 km',rewardScale:20,stats:{launch:12,drag:.06,control:1.55,tolerance:.25,slide:.22},unlock:'distance-6000'}
 ];
 export const MILESTONES=[
  {id:'distance-50',name:'Cleared the Junkyard',description:'Travel 50 metres in one run.',reward:30,test:({result})=>result.distance>=50},
  {id:'clean-landing',name:'Any Landing You Walk From',description:'Make your first clean landing.',reward:45,test:({result})=>result.landing==='clean'},
  {id:'distance-150',name:'Porcelain Pioneer',description:'Travel 140 metres and unlock the Bathtub Bullet.',reward:75,unlockVehicle:'bathtub',test:({result})=>result.distance>=140},
- {id:'distance-200',name:'One Foot in the Grave',description:'Travel 180 metres and unlock the Rocket Coffin.',reward:140,unlockVehicle:'coffin',test:({result,progress})=>progress.unlockedVehicles.includes('bathtub')&&result.distance>=180},
- {id:'distance-310',name:'Junkyard Space Program',description:'Travel 310 metres and unlock the Scrapstar UFO.',reward:250,unlockVehicle:'scrapstar',test:({result,progress})=>progress.unlockedVehicles.includes('coffin')&&result.distance>=310},
+ {id:'distance-200',name:'One Foot in the Grave',description:'Travel 1 kilometre and unlock the Rocket Coffin.',reward:1200,unlockVehicle:'coffin',test:({result,progress})=>progress.unlockedVehicles.includes('bathtub')&&result.distance>=1000},
+ {id:'distance-310',name:'Junkyard Space Program',description:'Travel 6 kilometres and unlock the Scrapstar UFO.',reward:30000,unlockVehicle:'scrapstar',test:({result,progress})=>progress.unlockedVehicles.includes('coffin')&&result.distance>=6000},
  {id:'runs-10',name:'Frequent Flier',description:'Complete 10 runs.',reward:100,test:({progress})=>progress.runs>=10}
 ];
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
