@@ -19,4 +19,5 @@ export class Simulation{
  land(){const angle=Math.abs(Math.atan2(Math.sin(this.angle),Math.cos(this.angle)));const impact=Math.abs(this.vy),stats=this.vehicle.stats;const tolerance=.42+stats.tolerance+(this.levels.durability||0)*.02+(this.parts.cage?.2:0);this.landing=angle<tolerance&&impact<(this.parts.cage?16:13)?'clean':angle<tolerance*1.8?'rough':'crash';this.state='ground';const keep=this.landing==='clean'?.72:this.landing==='rough'?.45:.2+stats.slide+(this.levels.durability||0)*.014+(this.parts.cage?.12:0);this.vx=Math.max(0,this.vx*keep);this.vy=0;this.grounded=true;this.rest=0}
  finish(reason='stopped'){if(this.state==='complete')return;this.state='complete';this.result={distance:Math.max(0,this.maxDistance),landing:this.landing||'crash',reason,rewardScale:this.vehicle.rewardScale||1,generation:this.vehicle.generation||1}}
  get speed(){return Math.hypot(this.vx,this.vy)}
+ get altitude(){return Math.max(0,this.y-groundAt(this.x,this.facilities.ramp||0))}
 }
