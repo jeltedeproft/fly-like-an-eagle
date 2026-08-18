@@ -7,12 +7,14 @@
   <title>Fly Like an Eagle</title>
   <link rel="stylesheet" href="src/style.css">
   <link rel="stylesheet" href="src/workshop.css">
+  <link rel="stylesheet" href="src/boost.css">
 </head>
 <body>
   <main id="app">
     <canvas id="game" aria-label="Fly Like an Eagle game world"></canvas>
     <section id="hud" aria-live="polite">
       <div style="flex-direction:row;gap:28px"><div style="display:flex;flex-direction:column"><strong id="distance">0 m</strong><span id="state">READY</span></div><div style="display:flex;flex-direction:column"><strong id="height">0 m</strong><span>HEIGHT</span></div></div>
+      <div id="boost-hud" class="boost-hud"><span>ROCKET BOOST <kbd>SPACE</kbd></span><div id="boost-meter" class="boost-meter" role="progressbar" aria-label="Rocket boost fuel" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="boost-fill"></i></div><small id="boost-fuel">NO FUEL</small></div>
       <div class="right"><strong id="speed">0 km/h</strong><span id="best">BEST 0 m</span></div>
     </section>
     <div id="countdown" class="countdown hidden" aria-live="assertive"></div>
