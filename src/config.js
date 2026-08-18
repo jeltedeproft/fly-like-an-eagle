@@ -20,7 +20,7 @@ export const VEHICLES=[
  {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',rewardScale:1,stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
  {id:'bathtub',generation:2,name:'Bathtub Bullet',description:'Porcelain engineering makes the first real leap forward.',strength:'GEN 2 · SUPERSONIC BATH',weakness:'UNLOCK 140 m',rewardScale:2,stats:{launch:1.4,drag:.72,control:1.05,tolerance:.1,slide:.08},unlock:'distance-150'},
  {id:'coffin',generation:3,name:'Rocket Coffin',description:'A deeply irresponsible rocket sled built for serious distance.',strength:'GEN 3 · HYPER ROCKET',weakness:'UNLOCK 1 km',rewardScale:6,stats:{launch:4,drag:.28,control:1.25,tolerance:.16,slide:.14},unlock:'distance-1000'},
- {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · INTERPLANETARY',weakness:'UNLOCK 6 km',rewardScale:20,stats:{launch:12,drag:.06,control:1.55,tolerance:.25,slide:.22},unlock:'distance-6000'}
+ {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · INTERPLANETARY',weakness:'UNLOCK 6 km',rewardScale:20,stats:{launch:12,drag:.005,control:1.55,tolerance:.25,slide:.22},unlock:'distance-6000'}
 ];
 export const MILESTONES=[
  {id:'distance-50',name:'Cleared the Junkyard',description:'Travel 50 metres in one run.',reward:30,test:({result})=>result.distance>=50},
