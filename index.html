@@ -12,8 +12,7 @@
   <main id="app">
     <canvas id="game" aria-label="Fly Like an Eagle game world"></canvas>
     <section id="hud" aria-live="polite">
-      <div><strong id="distance">0 m</strong><span id="state">READY</span></div>
-      <div style="text-align:center"><strong id="height">0 m</strong><span>HEIGHT</span></div>
+      <div style="flex-direction:row;gap:28px"><div style="display:flex;flex-direction:column"><strong id="distance">0 m</strong><span id="state">READY</span></div><div style="display:flex;flex-direction:column"><strong id="height">0 m</strong><span>HEIGHT</span></div></div>
       <div class="right"><strong id="speed">0 km/h</strong><span id="best">BEST 0 m</span></div>
     </section>
     <div id="countdown" class="countdown hidden" aria-live="assertive"></div>
