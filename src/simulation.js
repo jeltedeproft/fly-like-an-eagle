@@ -5,7 +5,7 @@ export function groundAt(x,rampLevel=0){
  // A ski-jump silhouette: high straight inrun, concave transition, rising takeoff table.
  if(x<-48)return 62;
  if(x<RAMP_CURVE_START){const t=(x+48)/40;return 62-40*t}
- if(x<RAMP_END){const span=RAMP_END-RAMP_CURVE_START,t=(x-RAMP_CURVE_START)/span,t2=t*t,t3=t2*t,end=17+rampLevel*3.1,tangent=span+rampLevel*5;return(2*t3-3*t2+1)*22+(t3-2*t2+t)*-span+(-2*t3+3*t2)*end+(t3-t2)*tangent}
+ if(x<RAMP_END){const span=RAMP_END-RAMP_CURVE_START,t=(x-RAMP_CURVE_START)/span,t2=t*t,t3=t2*t,end=17+rampLevel*3.1,tangent=span*Math.tan(25*Math.PI/180)+rampLevel*8;return(2*t3-3*t2+1)*22+(t3-2*t2+t)*-span+(-2*t3+3*t2)*end+(t3-t2)*tangent}
  return Math.sin(x*.045)*.65+Math.sin(x*.013)*.3;
 }
 export class Simulation{
