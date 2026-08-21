@@ -6,7 +6,7 @@ const landingGround=x=>Math.sin(x*.045)*.65+Math.sin(x*.013)*.3;
 export function groundAt(x,rampLevel=0){
  // A ski-jump silhouette: high straight inrun, concave transition, rising takeoff table.
  const{curveStart,end,descentLength,curveLength}=rampGeometry(rampLevel);
- const endHeight=landingGround(end),startHeight=endHeight+2,platformHeight=startHeight+descentLength;
+ const endHeight=landingGround(end)+10,startHeight=endHeight+2,platformHeight=startHeight+descentLength;
  if(x<-48)return platformHeight;
  if(x<curveStart){const t=(x+48)/descentLength;return platformHeight-descentLength*t}
  if(x<end){const t=(x-curveStart)/curveLength,t2=t*t,t3=t2*t,tangent=curveLength*Math.tan(25*Math.PI/180);return(2*t3-3*t2+1)*startHeight+(t3-2*t2+t)*-curveLength+(-2*t3+3*t2)*endHeight+(t3-t2)*tangent}
