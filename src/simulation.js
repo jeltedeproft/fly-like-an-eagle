@@ -1,11 +1,11 @@
 import{STEP,VEHICLES,POWER_SYSTEMS}from'./config.js';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
-export const RAMP_END=14;
+export const RAMP_CURVE_START=-12,RAMP_END=26;
 export function groundAt(x,rampLevel=0){
  // A ski-jump silhouette: high straight inrun, concave transition, rising takeoff table.
  if(x<-48)return 62;
- if(x<-18){const t=(x+48)/30;return 62-45*t}
- if(x<RAMP_END){const t=(x+18)/32,t2=t*t,t3=t2*t,end=15+rampLevel*3.1,tangent=28.8+rampLevel*7.2;return(2*t3-3*t2+1)*17+(t3-2*t2+t)*-48+(-2*t3+3*t2)*end+(t3-t2)*tangent}
+ if(x<RAMP_CURVE_START){const t=(x+48)/36;return 62-38*t}
+ if(x<RAMP_END){const t=(x-RAMP_CURVE_START)/(RAMP_END-RAMP_CURVE_START),t2=t*t,t3=t2*t,end=13+rampLevel*3.1,tangent=12+rampLevel*8;return(2*t3-3*t2+1)*24+(t3-2*t2+t)*-30+(-2*t3+3*t2)*end+(t3-t2)*tangent}
  return Math.sin(x*.045)*.65+Math.sin(x*.013)*.3;
 }
 export class Simulation{
