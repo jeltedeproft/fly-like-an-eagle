@@ -22,6 +22,7 @@ addEventListener('keydown',e=>{setKey(e.code,true);if(e.repeat)return;if(e.code=
 canvas.addEventListener('pointerdown',e=>{if(sim.state==='air'){input[e.clientX<innerWidth/2?'left':'right']=true}});canvas.addEventListener('pointerup',()=>{input.left=input.right=false});
 $('launch').onclick=start;$('retry').onclick=start;$('open-shop').onclick=shop;$('shop-launch').onclick=start;$('motion').onclick=()=>{audio.play('click');progress={...progress,reducedMotion:!progress.reducedMotion};saveProgress(progress);updateControls()};
 $('cheat').onclick=()=>{audio.unlock();audio.play('reward');progress={...progress,bolts:Math.max(progress.bolts,1e15),unlockedVehicles:VEHICLES.map(vehicle=>vehicle.id)};saveProgress(progress);if(!$('shop').classList.contains('hidden'))renderShop();$('cheat').textContent='DEV: EVERYTHING UNLOCKED'};
+if(!['localhost','127.0.0.1'].includes(location.hostname))$('cheat').hidden=true;
 const nextVolume=(current,steps)=>steps[(steps.findIndex(v=>Math.abs(v-current)<.01)+1)%steps.length];
 $('music').onclick=()=>{audio.unlock();progress={...progress,musicVolume:nextVolume(progress.musicVolume,[.55,.25,0])};audio.setMusic(progress.musicVolume);saveProgress(progress);updateControls()};
 $('sfx').onclick=()=>{audio.unlock().then(()=>audio.play('click'));progress={...progress,sfxVolume:nextVolume(progress.sfxVolume,[.8,.4,0])};audio.setSfx(progress.sfxVolume);saveProgress(progress);updateControls()};
