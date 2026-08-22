@@ -2,8 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="theme-color" content="#201a1e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <title>Fly Like an Eagle</title>
   <link rel="stylesheet" href="src/style.css">
   <link rel="stylesheet" href="src/workshop.css">
@@ -24,7 +29,8 @@
       <h1>Fly Like<br>an Eagle</h1>
       <p>Your shopping cart has dreams. The hill has other plans.</p>
       <button id="launch">LAUNCH THIS THING <kbd>Space</kbd></button>
-      <small>Airborne: A/D or ←/→ to lean · R to restart</small>
+      <small class="desktop-only">Airborne: A/D or ←/→ to lean · R to restart</small>
+      <small class="touch-only">Best played in landscape · hold the on-screen controls while airborne</small>
     </section>
     <section id="results" class="card hidden">
       <p class="eyebrow">RUN COMPLETE</p>
@@ -57,6 +63,12 @@
       <button id="sfx" aria-label="Change sound effects volume">SFX: 80%</button>
       <button id="motion" aria-pressed="false">FX: FULL</button>
     </div>
+    <nav id="touch-controls" class="touch-controls" aria-label="Flight controls">
+      <button id="touch-left" class="touch-steer" aria-label="Lean left">◀<small>LEAN</small></button>
+      <button id="touch-boost" class="touch-boost" aria-label="Hold rocket boost">🔥<small>BOOST</small></button>
+      <button id="touch-right" class="touch-steer" aria-label="Lean right">▶<small>LEAN</small></button>
+    </nav>
+    <aside id="rotate-hint" class="rotate-hint" aria-live="polite"><span>↻</span><b>ROTATE TO LANDSCAPE</b><small>You’ll have much better control.</small></aside>
   </main>
   <script type="module" src="src/main.js"></script>
 </body>

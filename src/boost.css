@@ -43,3 +43,9 @@
     width: 180px;
   }
 }
+
+.touch-device .boost-hud kbd { display: none; }
+@media (max-height: 500px) and (orientation: landscape) {
+  .boost-hud { top: 0; width: min(220px, 30vw); }
+  .boost-hud small { display: none; }
+}

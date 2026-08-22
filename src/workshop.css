@@ -100,4 +100,21 @@
   .part-grid { grid-template-columns: repeat(2, 1fr); }
   .vehicle-grid { grid-template-columns: repeat(2, 1fr); }
   #vehicle-preview { height: 135px; }
+  .workshop { width: 96vw; max-height: 96dvh; padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .workshop header { position: sticky; z-index: 5; top: -14px; margin: -14px -14px 0; padding: 12px 14px 7px; background: var(--cream); }
+  .workshop header h2 { font-size: 29px; }
+  .workshop header strong { font-size: 12px; white-space: nowrap; }
+  .facility-upgrade { align-items: stretch; flex-direction: column; gap: 9px; }
+  .facility-upgrade button { width: 100%; }
+  .upgrade { min-height: 170px; }
+  .upgrade button { min-height: 42px; }
+}
+
+@media (max-width: 430px) {
+  .vehicle-grid { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .vehicle-choice { padding: 8px; }
+  .upgrade-grid,.part-grid { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .upgrade { padding: 8px; }
+  #vehicle-preview { height: 112px; }
+  .shop-heading { margin-top: 9px; }
 }

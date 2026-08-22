@@ -1,0 +1,16 @@
+{
+  "name": "Fly Like an Eagle",
+  "short_name": "Fly Like",
+  "description": "Launch ridiculous junkyard vehicles, fly farther, and upgrade from scrap cart to spaceship.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#201A1E",
+  "theme_color": "#201A1E",
+  "icons": [
+    {"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
