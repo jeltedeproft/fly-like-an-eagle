@@ -17,10 +17,10 @@ export const FACILITY_UPGRADES=[
  {id:'ramp',name:'Launch Facility',names:['Rotten Plank Ramp','Reinforced Ski Ramp','Scrapyard Launch Tower','Rocket Rail','Mountain Cannon','Orbital Railgun','Lunar Slingshot','Reality Catapult'],description:'Replace the entire launch site with increasingly unreasonable engineering.',baseCost:160,max:7,effect:l=>`${['WOOD','STEEL','TOWER','ROCKET','MOUNTAIN','ORBITAL','LUNAR','REALITY'][l]} CLASS · launch +${l*8}%`}
 ];
 export const VEHICLES=[
- {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',rewardScale:1,stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
- {id:'bathtub',generation:2,name:'Bathtub Bullet',description:'Porcelain engineering makes the first real leap forward.',strength:'GEN 2 · SUPERSONIC BATH',weakness:'UNLOCK 140 m',rewardScale:2,stats:{launch:1.4,drag:.72,control:1.05,tolerance:.1,slide:.08},unlock:'distance-150'},
- {id:'coffin',generation:3,name:'Rocket Coffin',description:'A deeply irresponsible rocket sled built for serious distance.',strength:'GEN 3 · HYPER ROCKET',weakness:'UNLOCK 1 km',rewardScale:6,stats:{launch:4,drag:.28,control:1.25,tolerance:.16,slide:.14},unlock:'distance-1000'},
- {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · INTERPLANETARY',weakness:'UNLOCK 6 km',rewardScale:20,stats:{launch:12,drag:.005,control:1.55,tolerance:.25,slide:.22},unlock:'distance-6000'}
+ {id:'cart',generation:1,name:'Rustbucket Cart',description:'Barely a vehicle. Mostly rust, optimism, and four suspicious wheels.',strength:'GEN 1 · SCRAP POWER',weakness:'STARTER',rewardScale:1,costScale:1,stats:{launch:.78,drag:1.15,control:.82,tolerance:-.04,slide:0}},
+ {id:'bathtub',generation:2,name:'Bathtub Bullet',description:'Porcelain engineering makes the first real leap forward.',strength:'GEN 2 · SUPERSONIC BATH',weakness:'UNLOCK 140 m',rewardScale:2,costScale:8,stats:{launch:1.4,drag:.72,control:1.05,tolerance:.1,slide:.08},unlock:'distance-150'},
+ {id:'coffin',generation:3,name:'Rocket Coffin',description:'A deeply irresponsible rocket sled built for serious distance.',strength:'GEN 3 · HYPER ROCKET',weakness:'UNLOCK 1 km',rewardScale:6,costScale:60,stats:{launch:4,drag:.28,control:1.25,tolerance:.16,slide:.14},unlock:'distance-1000'},
+ {id:'scrapstar',generation:4,name:'Scrapstar UFO',description:'The junkyard has achieved spaceflight. Nobody knows how.',strength:'GEN 4 · INTERPLANETARY',weakness:'UNLOCK 6 km',rewardScale:20,costScale:800,stats:{launch:12,drag:.005,control:1.55,tolerance:.25,slide:.22},unlock:'distance-6000'}
 ];
 export const MILESTONES=[
  {id:'distance-50',name:'Cleared the Junkyard',description:'Travel 50 metres in one run.',reward:30,test:({result})=>result.distance>=50},
@@ -38,5 +38,8 @@ export const POWER_SYSTEMS={
 };
 export const powerCost=(system,level)=>Math.round(system.baseCost*Math.pow(7,level));
 export const upgradeCost=(upgrade,level)=>Math.round(upgrade.baseCost*(1+level*.72+level*level*.18));
+export const vehicleCostScale=vehicleId=>VEHICLES.find(vehicle=>vehicle.id===vehicleId)?.costScale||1;
+export const vehicleUpgradeCost=(upgrade,level,vehicleId='cart')=>Math.round(upgradeCost(upgrade,level)*vehicleCostScale(vehicleId));
+export const vehiclePartCost=(part,vehicleId='cart')=>Math.round(part.cost*vehicleCostScale(vehicleId));
 export const defaultVehicleBuild=()=>({levels:Object.fromEntries(UPGRADES.map(u=>[u.id,0])),parts:Object.fromEntries(PARTS.map(p=>[p.id,false])),powerLevel:0});
 export const defaultProgress=()=>({schemaVersion:7,bolts:0,best:0,prestige:{genius:0},vehicleProgress:Object.fromEntries(VEHICLES.map(v=>[v.id,defaultVehicleBuild()])),facilities:Object.fromEntries(FACILITY_UPGRADES.map(f=>[f.id,0])),claimedMilestones:[],unlockedVehicles:['cart'],selectedVehicle:'cart',reducedMotion:false,musicVolume:.55,sfxVolume:.8,runs:0});
